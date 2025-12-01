@@ -53,15 +53,15 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login",
                             "/api/v1/auth/refresh-token").permitAll()
-                    .requestMatchers("/api/v1/posts", "/api/v1/posts/**").permitAll()
-                    .requestMatchers("/api/v1/users/search").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/posts", "/api/v1/posts/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/users/search").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/auth/logout").authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/users/**", "/api/v1/posts/**", "/api/v1/comments/**").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**", "/api/v1/posts/**", "/api/v1/comments/**").authenticated()
                     .requestMatchers(HttpMethod.POST, "/api/v1/posts/**", "/api/v1/comments/**").authenticated()
-                    .requestMatchers("/api/v1/users/me").authenticated()
-                    .anyRequest().authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/users/me").authenticated()
+                    .anyRequest().permitAll()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
