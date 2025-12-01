@@ -1,4 +1,4 @@
-# Logs
+﻿# Frontend - Logs
 logs
 *.log
 npm-debug.log*
@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Frontend - Dependencies and builds
 node_modules
 dist
 dist-ssr
@@ -22,3 +23,48 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Backend - Maven
+backend/target/
+backend/.m2/
+backend/*.jar
+backend/*.war
+backend/dependency-reduced-pom.xml
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.factorypath
+
+# Backend - IDE
+backend/.idea/
+backend/.vscode/
+backend/*.iml
+backend/*.iws
+backend/*.ipr
+backend/.DS_Store
+
+# Backend - Build and runtime
+backend/build/
+backend/out/
+backend/bin/
+backend/.gradle/
+backend/*.class
+backend/**/*.class
+
+# Backend - Logs
+backend/logs/
+backend/*.log
+
+# Backend - Environment and Config
+backend/.env
+backend/.env.local
+backend/application-*.properties
+!backend/application.properties
+
+# Backend - Spring Boot
+backend/.spring/
+backend/spring-boot-devtools.properties
+
+# Backend - Database files (if using embedded DB)
+backend/*.db
+backend/*.sqlite
