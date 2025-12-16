@@ -1,16 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/Common/Layout'
+import HomePage from './components/Home/HomePage'
+import CategoryPage from './components/Category/CategoryPage'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h1>learning react new version</h1>
-      <h2>This is first stape to start it</h2>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="category" element={<CategoryPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
