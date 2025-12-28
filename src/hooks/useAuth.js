@@ -84,8 +84,8 @@ export const useAuth = () => {
         }
         try {
             const response = await userAPI.getCurrentUser();
-            setUser(response.data);
-        } catch (error) {
+            setUser(response.data.data);
+        } catch {
             localStorage.removeItem('token');
             localStorage.removeItem('refreshToken');
             logoutAction();

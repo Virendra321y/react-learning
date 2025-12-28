@@ -20,12 +20,12 @@ const Register = () => {
             >
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 inline-block">
-                        Start Learning
+                        Join Social Media App
                     </h1>
                 </div>
                 <RegisterForm />
                 <p className="mt-8 text-center text-xs text-slate-500 font-medium">
-                    © {new Date().getFullYear()} React Learning Platform. All rights reserved.
+                    © {new Date().getFullYear()} Social Media App. All rights reserved.
                 </p>
             </motion.div>
         </div>
