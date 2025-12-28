@@ -4,6 +4,10 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
+import Posts from './pages/Posts';
+import CreatePost from './pages/CreatePost';
+import EditPost from './pages/EditPost';
+import PostDetailPage from './pages/PostDetailPage';
 import { useAuth } from './hooks/useAuth';
 import AppLayout from './components/Common/AppLayout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -23,6 +27,26 @@ function App() {
         <Route path="/" element={
           <ProtectedRoute>
             <AppLayout><Home /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/posts" element={
+          <ProtectedRoute>
+            <AppLayout><Posts /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/posts/create" element={
+          <ProtectedRoute>
+            <AppLayout><CreatePost /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/posts/:id" element={
+          <ProtectedRoute>
+            <AppLayout><PostDetailPage /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/posts/:id/edit" element={
+          <ProtectedRoute>
+            <AppLayout><EditPost /></AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/login" element={
