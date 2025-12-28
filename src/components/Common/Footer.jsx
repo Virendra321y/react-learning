@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <Link to="/" className="text-2xl font-bold text-white mb-4 block">
-              ReactLearn
+              SocialApp
             </Link>
             <p className="text-sm text-slate-400">
               Master React development with our comprehensive learning platform. Join our community today.
@@ -60,7 +60,7 @@ const Footer = () => {
 
         <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} React Learning Platform. All rights reserved.
+            © {new Date().getFullYear()} Social Media App. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-slate-500">
             <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>

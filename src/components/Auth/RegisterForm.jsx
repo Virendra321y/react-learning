@@ -44,7 +44,7 @@ const RegisterForm = () => {
         setIsLoading(true);
         try {
             // Omit confirmPassword from API call
-            const { confirmPassword, ...registerData } = data;
+            const { confirmPassword: _confirmPassword, ...registerData } = data;
             await registerUser(registerData);
             navigate('/'); // Redirect to home on success
         } catch (err) {
