@@ -18,6 +18,14 @@ const CommentCard = ({ comment, onEdit, onDelete, currentUserId }) => {
     // Check if current user is the author
     const isAuthor = currentUserId === comment.author?.id;
 
+    // Debug log (can be removed after verification)
+    console.debug('Comment Author Check:', {
+        commentId: comment.id,
+        commentAuthorId: comment.author?.id,
+        currentUserId,
+        isAuthor
+    });
+
     // Format date
     const formatDate = (dateString) => {
         const date = new Date(dateString);

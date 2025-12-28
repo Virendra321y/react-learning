@@ -119,7 +119,10 @@ export const useUpdateComment = () => {
             console.error('Error updating comment:', error);
         },
         onSuccess: (updatedComment, { commentId }) => {
-            // Update the comment in all relevant caches
+            // Update the comment in detail cache
+            queryClient.setQueryData(commentKeys.detail(commentId), updatedComment);
+
+            // Invalidate all comment queries to ensure lists are updated
             queryClient.invalidateQueries({
                 queryKey: commentKeys.all,
             });
@@ -161,7 +164,7 @@ export const useDeleteComment = () => {
             console.error('Error deleting comment:', error);
         },
         onSuccess: () => {
-            // Invalidate all comment queries to ensure consistency
+            // Invalidate all comment queries to ensure consistency across the app
             queryClient.invalidateQueries({
                 queryKey: commentKeys.all,
             });
