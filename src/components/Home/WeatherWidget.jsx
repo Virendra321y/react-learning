@@ -47,12 +47,12 @@ const WeatherWidget = () => {
         getLocation();
     }, []);
 
-    const getWeatherIcon = (code) => {
-        if (code === 0) return <WiDaySunny className="text-yellow-400 w-12 h-12" />;
-        if (code <= 3) return <WiCloudy className="text-gray-400 w-12 h-12" />;
-        if (code <= 69) return <WiRain className="text-blue-400 w-12 h-12" />;
-        if (code <= 79) return <WiSnow className="text-white w-12 h-12" />;
-        return <WiThunderstorm className="text-purple-400 w-12 h-12" />;
+    const getWeatherInfo = (code) => {
+        if (code === 0) return { icon: <WiDaySunny className="text-yellow-400 w-12 h-12" />, label: 'Clear Sky' };
+        if (code <= 3) return { icon: <WiCloudy className="text-gray-400 w-12 h-12" />, label: 'Partly Cloudy' };
+        if (code <= 69) return { icon: <WiRain className="text-blue-400 w-12 h-12" />, label: 'Rainy' };
+        if (code <= 79) return { icon: <WiSnow className="text-white w-12 h-12" />, label: 'Snowy' };
+        return { icon: <WiThunderstorm className="text-purple-400 w-12 h-12" />, label: 'Stormy' };
     };
 
     if (loading) return (
@@ -67,6 +67,8 @@ const WeatherWidget = () => {
         </div>
     );
 
+    const info = getWeatherInfo(weather.weathercode);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -78,7 +80,7 @@ const WeatherWidget = () => {
                     <h3 className="text-white/70 text-sm font-medium uppercase tracking-wider">Current Weather</h3>
                     <p className="text-white text-lg font-bold">{location.name}</p>
                 </div>
-                {getWeatherIcon(weather.weathercode)}
+                {info.icon}
             </div>
 
             <div className="flex items-end gap-2 text-white">
@@ -93,7 +95,7 @@ const WeatherWidget = () => {
                 </div>
                 <div className="flex flex-col">
                     <span>Status</span>
-                    <span className="text-white font-bold">Clear Sky</span>
+                    <span className="text-white font-bold">{info.label}</span>
                 </div>
             </div>
         </motion.div>
