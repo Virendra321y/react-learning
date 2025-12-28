@@ -68,10 +68,63 @@ const Navbar = () => {
                         {/* Logo Section */}
                         <div className="flex-shrink-0 flex items-center">
                             <Link to="/" className="flex items-center gap-2 group">
-                                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-lg transition-all group-hover:scale-110 group-hover:rotate-3 group-hover:bg-white/30">
-                                    <IoMdRocket size={24} className="group-hover:-translate-y-0.5 transition-transform" />
+                                <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg transition-all group-hover:scale-110 group-hover:bg-white/30 relative overflow-visible">
+                                    <style>{`
+                                        @keyframes swim-circle {
+                                            0% { transform: rotate(0deg) translateX(12px) rotate(0deg); }
+                                            100% { transform: rotate(360deg) translateX(12px) rotate(-360deg); }
+                                        }
+                                        @keyframes swim-circle-small {
+                                            0% { transform: rotate(0deg) translateX(10px) rotate(0deg); }
+                                            100% { transform: rotate(360deg) translateX(10px) rotate(-360deg); }
+                                        }
+                                        @keyframes colorful-blink {
+                                            0%, 100% { 
+                                                background: linear-gradient(90deg, #fff, #ffd700);
+                                                -webkit-background-clip: text;
+                                                background-clip: text;
+                                                opacity: 1;
+                                            }
+                                            25% { 
+                                                background: linear-gradient(90deg, #ff6b9d, #c084fc);
+                                                -webkit-background-clip: text;
+                                                background-clip: text;
+                                                opacity: 0.9;
+                                            }
+                                            50% { 
+                                                background: linear-gradient(90deg, #60a5fa, #34d399);
+                                                -webkit-background-clip: text;
+                                                background-clip: text;
+                                                opacity: 1;
+                                            }
+                                            75% { 
+                                                background: linear-gradient(90deg, #fbbf24, #f97316);
+                                                -webkit-background-clip: text;
+                                                background-clip: text;
+                                                opacity: 0.9;
+                                            }
+                                        }
+                                        .dolphin-swim { animation: swim-circle 3s linear infinite; }
+                                        .fish-swim { animation: swim-circle 3s linear infinite 1.5s; }
+                                        .small-fish-1 { animation: swim-circle-small 2.5s linear infinite 0.5s; }
+                                        .small-fish-2 { animation: swim-circle-small 2.5s linear infinite 2s; }
+                                        .text-blink { 
+                                            animation: colorful-blink 3s ease-in-out infinite;
+                                            -webkit-text-fill-color: transparent;
+                                        }
+                                    `}</style>
+                                    <div className="relative w-full h-full flex items-center justify-center">
+                                        {/* Dolphin swimming in circle */}
+                                        <span className="absolute text-xl dolphin-swim">🐬</span>
+                                        {/* Tropical fish (light colored) */}
+                                        <span className="absolute text-lg fish-swim">🐠</span>
+                                        {/* Small fish 1 */}
+                                        <span className="absolute text-sm small-fish-1">🐟</span>
+                                        {/* Small fish 2 */}
+                                        <span className="absolute text-xs small-fish-2">🐡</span>
+                                    </div>
                                 </div>
-                                <span className="text-xl font-bold text-white drop-shadow-lg hidden sm:block">
+                                <span className="text-xl font-bold drop-shadow-lg hidden sm:block text-blink">
                                     SocialApp
                                 </span>
                             </Link>
