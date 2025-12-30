@@ -111,7 +111,6 @@ export const authAPI = {
     login: (data) => apiClient.post('/auth/login', data),
     logout: () => apiClient.post('/auth/logout'),
     refreshToken: (refreshToken) => apiClient.post('/auth/refresh-token', { refreshToken }),
-    promoteMe: () => apiClient.post('/auth/promote-me'),
 };
 
 export const userAPI = {
@@ -137,6 +136,7 @@ export const adminAPI = {
     getStats: () => apiClient.get('/admin/stats'),
     getAllUsers: (page = 0, size = 10) => apiClient.get('/admin/users', { params: { page, size } }),
     updateUserStatus: (userId, status) => apiClient.put(`/admin/users/${userId}/status`, null, { params: { status } }),
+    updateUserRole: (userId, role) => apiClient.put(`/admin/users/${userId}/role`, null, { params: { role } }),
 };
 
 export default apiClient;

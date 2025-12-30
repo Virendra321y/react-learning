@@ -211,22 +211,6 @@ const Navbar = () => {
                                                     <button className="w-full text-left px-5 py-2.5 text-sm text-slate-600 hover:bg-purple-50 hover:text-purple-600 flex items-center transition-colors">
                                                         <FiSettings className="mr-3 text-slate-400" /> Settings
                                                     </button>
-                                                    {user?.role !== 'ADMIN' && (
-                                                        <button
-                                                            onClick={async () => {
-                                                                try {
-                                                                    await authAPI.promoteMe();
-                                                                    toast.success('Successfully promoted! Please re-login.');
-                                                                    logout();
-                                                                } catch (err) {
-                                                                    toast.error('Failed to promote');
-                                                                }
-                                                            }}
-                                                            className="w-full text-left px-5 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 flex items-center transition-colors font-bold"
-                                                        >
-                                                            <FiShield className="mr-3" /> Become Admin
-                                                        </button>
-                                                    )}
                                                 </div>
 
                                                 <div className="my-1 border-t border-slate-50"></div>
