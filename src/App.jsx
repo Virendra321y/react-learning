@@ -10,12 +10,17 @@ import EditPost from './pages/EditPost';
 import PostDetailPage from './pages/PostDetailPage';
 import UserSearch from './pages/UserSearch';
 import UserProfile from './pages/UserProfile';
+import Bookmarks from './pages/Bookmarks';
+import AdminDashboard from './pages/AdminDashboard';
+import ChatPage from './pages/ChatPage';
 import { useAuth } from './hooks/useAuth';
 import AppLayout from './components/Common/AppLayout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import AdminProtectedRoute from './components/Auth/AdminProtectedRoute';
 import PublicRoute from './components/Auth/PublicRoute';
 import useChatStore from './hooks/useChatStore';
 import ChatSidebar from './components/Chat/ChatSidebar';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const { checkAuth, user, isAuthenticated } = useAuth();
@@ -81,6 +86,21 @@ function App() {
             <AppLayout><UserProfile /></AppLayout>
           </ProtectedRoute>
         } />
+        <Route path="/bookmarks" element={
+          <ProtectedRoute>
+            <AppLayout><Bookmarks /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/chat" element={
+          <ProtectedRoute>
+            <AppLayout><ChatPage /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <AdminProtectedRoute>
+            <AppLayout><AdminDashboard /></AppLayout>
+          </AdminProtectedRoute>
+        } />
         <Route path="/login" element={
           <PublicRoute>
             <Login />
@@ -94,6 +114,7 @@ function App() {
         <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
       </Routes>
       <ChatSidebar />
+      <Toaster position="top-right" />
     </Router>
   );
 }

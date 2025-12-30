@@ -46,6 +46,9 @@ public class ChatServiceImpl implements ChatService {
         @Autowired
         private SimpMessagingTemplate messagingTemplate;
 
+        @Autowired
+        private com.example.learning.service.NotificationService notificationService;
+
         @Override
         public boolean validateMutualFollow(Long user1Id, Long user2Id) {
                 return userRepository.areMutualFollowers(user1Id, user2Id);
@@ -89,6 +92,14 @@ public class ChatServiceImpl implements ChatService {
                                                 ? message.getContent().substring(0, 100) + "..."
                                                 : message.getContent());
                 conversationRepository.save(conversation);
+
+                // Create persistent notification for receiver
+                notificationService.createNotification(
+                                receiver,
+                                sender,
+                                "MESSAGE",
+                                "New message from " + sender.getUsername(),
+                                "/chat?conversationId=" + conversation.getId());
 
                 // Build response
                 return MessageResponse.builder()

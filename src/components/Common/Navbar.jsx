@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiLogOut, FiUser, FiSettings, FiChevronDown, FiUserCheck } from 'react-icons/fi';
+import { FiMenu, FiX, FiLogOut, FiUser, FiSettings, FiChevronDown, FiUserCheck, FiHome, FiBookmark, FiDatabase, FiMessageSquare, FiUserPlus } from 'react-icons/fi';
 import { IoMdRocket } from 'react-icons/io'; // Rocket icon
 import clsx from 'clsx';
 import { useAuth } from '../../hooks/useAuth';
+import { authAPI } from '../../services/api';
+import NotificationsDropdown from './NotificationsDropdown';
+import { toast } from 'react-hot-toast';
 
 
 const Navbar = () => {
@@ -44,9 +47,11 @@ const Navbar = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'Posts', path: '/posts' },
-        { name: 'Find People', path: '/users' },
+        { name: 'Home', path: '/', icon: <FiHome className="mr-2" /> },
+        { name: 'Posts', path: '/posts', icon: <FiMessageSquare className="mr-2" /> },
+        { name: 'Find People', path: '/users', icon: <FiUserPlus className="mr-2" /> },
+        ...(user ? [{ name: 'Bookmarks', path: '/bookmarks', icon: <FiBookmark className="mr-2" /> }] : []),
+        ...(user?.role === 'ADMIN' ? [{ name: 'Admin', path: '/admin', icon: <FiDatabase className="mr-2" /> }] : []),
     ];
 
     const getInitials = (firstName, lastName) => {
@@ -152,7 +157,8 @@ const Navbar = () => {
                     </div>
 
                     {/* Right Side Wrapper: Auth/Profile Only */}
-                    <div className="hidden md:flex items-center ml-auto">
+                    <div className="hidden md:flex items-center ml-auto gap-4">
+                        {user && <NotificationsDropdown />}
                         <div className="flex items-center">
 
                             {user ? (
@@ -205,6 +211,22 @@ const Navbar = () => {
                                                     <button className="w-full text-left px-5 py-2.5 text-sm text-slate-600 hover:bg-purple-50 hover:text-purple-600 flex items-center transition-colors">
                                                         <FiSettings className="mr-3 text-slate-400" /> Settings
                                                     </button>
+                                                    {user?.role !== 'ADMIN' && (
+                                                        <button
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await authAPI.promoteMe();
+                                                                    toast.success('Successfully promoted! Please re-login.');
+                                                                    logout();
+                                                                } catch (err) {
+                                                                    toast.error('Failed to promote');
+                                                                }
+                                                            }}
+                                                            className="w-full text-left px-5 py-2.5 text-sm text-indigo-600 hover:bg-indigo-50 flex items-center transition-colors font-bold"
+                                                        >
+                                                            <FiShield className="mr-3" /> Become Admin
+                                                        </button>
+                                                    )}
                                                 </div>
 
                                                 <div className="my-1 border-t border-slate-50"></div>

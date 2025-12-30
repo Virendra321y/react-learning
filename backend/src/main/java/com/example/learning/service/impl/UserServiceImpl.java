@@ -39,6 +39,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.example.learning.service.NotificationService notificationService;
+
     @Override
     @Transactional(readOnly = true)
     public PageResponse<UserResponse> getAllUsers(Pageable pageable) {
@@ -154,6 +157,15 @@ public class UserServiceImpl implements UserService {
 
         follower.getFollowing().add(following);
         userRepository.save(follower);
+
+        // Create notification for the user being followed
+        notificationService.createNotification(
+                following,
+                follower,
+                "FOLLOW",
+                follower.getUsername() + " started following you",
+                "/users/" + follower.getId());
+
         log.info("User {} started following user {}", followerId, followingId);
     }
 

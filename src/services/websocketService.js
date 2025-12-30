@@ -12,6 +12,7 @@ class WebSocketService {
         this.messageHandlers = [];
         this.connectionHandlers = [];
         this.readReceiptHandlers = [];
+        this.notificationHandlers = [];
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
     }
@@ -23,6 +24,7 @@ class WebSocketService {
         this.messageHandlers = [];
         this.connectionHandlers = [];
         this.readReceiptHandlers = [];
+        this.notificationHandlers = [];
     }
 
     /**
@@ -66,6 +68,12 @@ class WebSocketService {
                 const receipt = JSON.parse(message.body);
                 console.log('Received read receipt:', receipt);
                 this.notifyReadReceiptHandlers(receipt);
+            });
+
+            this.client.subscribe('/user/queue/notifications', (message) => {
+                const notification = JSON.parse(message.body);
+                console.log('Received notification:', notification);
+                this.notifyNotificationHandlers(notification);
             });
 
             // Subscribe to error queue
@@ -149,6 +157,33 @@ class WebSocketService {
      */
     onReadReceipt(handler) {
         this.readReceiptHandlers.push(handler);
+    }
+
+    /**
+     * Register a handler for notifications
+     */
+    onNotification(handler) {
+        this.notificationHandlers.push(handler);
+    }
+
+    /**
+     * Remove a notification handler
+     */
+    removeNotificationHandler(handler) {
+        this.notificationHandlers = this.notificationHandlers.filter((h) => h !== handler);
+    }
+
+    /**
+     * Notify all notification handlers
+     */
+    notifyNotificationHandlers(notification) {
+        this.notificationHandlers.forEach((handler) => {
+            try {
+                handler(notification);
+            } catch (error) {
+                console.error('Error in notification handler:', error);
+            }
+        });
     }
 
     /**

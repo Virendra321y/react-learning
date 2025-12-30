@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = { "http://localhost:3000", "http://localhost:5173" })
 public class AuthController {
 
     @Autowired
@@ -28,14 +28,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
         log.info("Registering new user: {}", request.getEmail());
         AuthResponse data = authService.register(request);
-        
+
         ApiResponse<AuthResponse> response = ApiResponse.<AuthResponse>builder()
                 .success(true)
                 .message("User registered successfully")
                 .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();
-        
+
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -43,14 +43,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         log.info("User login attempt: {}", request.getEmail());
         AuthResponse data = authService.login(request);
-        
+
         ApiResponse<AuthResponse> response = ApiResponse.<AuthResponse>builder()
                 .success(true)
                 .message("Login successful")
                 .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();
-        
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -58,14 +58,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponse>> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         log.info("Refreshing token");
         TokenResponse data = authService.refreshToken(request.getRefreshToken());
-        
+
         ApiResponse<TokenResponse> response = ApiResponse.<TokenResponse>builder()
                 .success(true)
                 .message("Token refreshed successfully")
                 .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();
-        
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -73,13 +73,31 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String token) {
         log.info("User logout");
         authService.logout(token);
-        
+
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .success(true)
                 .message("Logged out successfully")
                 .timestamp(LocalDateTime.now())
                 .build();
-        
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/promote-me")
+    public ResponseEntity<ApiResponse<Void>> promoteMe(
+            org.springframework.security.core.Authentication authentication) {
+        log.info("Promoting user {} to ADMIN", authentication.getName());
+        // Simple direct update for development purposes
+        com.example.learning.entity.User user = authService.getUserByEmail(authentication.getName());
+        user.setRole("ADMIN");
+        authService.saveUser(user);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(true)
+                .message("You are now an ADMIN. Please re-login to update your session.")
+                .timestamp(LocalDateTime.now())
+                .build();
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
