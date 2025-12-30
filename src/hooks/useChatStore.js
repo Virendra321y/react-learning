@@ -156,6 +156,30 @@ const useChatStore = create((set, get) => ({
             }
         };
 
+        const handleReadReceipt = (receipt) => {
+            const { conversationId } = receipt;
+            console.log('Handling read receipt for conversation:', conversationId);
+
+            set((state) => {
+                const conversationMessages = state.messages[conversationId] || [];
+                // Only update if there are messages and some might need updating
+                if (conversationMessages.length > 0) {
+                    const updatedMessages = conversationMessages.map(msg => ({
+                        ...msg,
+                        readStatus: true
+                    }));
+
+                    return {
+                        messages: {
+                            ...state.messages,
+                            [conversationId]: updatedMessages
+                        }
+                    };
+                }
+                return state;
+            });
+        };
+
         const handleConnectionChange = (connected) => {
             set({ isConnected: connected });
             if (connected) {
@@ -167,6 +191,7 @@ const useChatStore = create((set, get) => ({
 
         websocketService.clearHandlers();
         websocketService.onMessage(handleMessage);
+        websocketService.onReadReceipt(handleReadReceipt);
         websocketService.onConnectionChange(handleConnectionChange);
         websocketService.connect(token);
     },

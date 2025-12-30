@@ -4,6 +4,7 @@ import com.example.learning.dto.request.MessageRequest;
 import com.example.learning.dto.response.ConversationResponse;
 import com.example.learning.dto.response.MessageResponse;
 import com.example.learning.dto.response.PageResponse;
+import com.example.learning.dto.response.ReadReceiptResponse;
 import com.example.learning.entity.Conversation;
 import com.example.learning.entity.Message;
 import com.example.learning.entity.User;
@@ -15,6 +16,7 @@ import com.example.learning.repository.UserRepository;
 import com.example.learning.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,9 @@ public class ChatServiceImpl implements ChatService {
 
         @Autowired
         private UserRepository userRepository;
+
+        @Autowired
+        private SimpMessagingTemplate messagingTemplate;
 
         @Override
         public boolean validateMutualFollow(Long user1Id, Long user2Id) {
@@ -166,6 +171,30 @@ public class ChatServiceImpl implements ChatService {
                 }
 
                 messageRepository.markMessagesAsRead(conversationId, userId);
+
+                // Notify the other user about read status
+                try {
+                        Long otherUserId = conversation.getUser1Id().equals(userId)
+                                        ? conversation.getUser2Id()
+                                        : conversation.getUser1Id();
+
+                        User otherUser = userRepository.findById(otherUserId)
+                                        .orElseThrow(() -> new ResourceNotFoundException("Other user not found"));
+
+                        ReadReceiptResponse receipt = ReadReceiptResponse.builder()
+                                        .conversationId(conversationId)
+                                        .readerId(userId)
+                                        .build();
+
+                        messagingTemplate.convertAndSendToUser(
+                                        otherUser.getEmail(),
+                                        "/queue/read-receipts",
+                                        receipt);
+
+                        log.info("Read receipt sent to user {}", otherUser.getEmail());
+                } catch (Exception e) {
+                        log.error("Error sending read receipt: {}", e.getMessage());
+                }
         }
 
         @Override

@@ -11,6 +11,7 @@ class WebSocketService {
         this.connected = false;
         this.messageHandlers = [];
         this.connectionHandlers = [];
+        this.readReceiptHandlers = [];
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
     }
@@ -21,6 +22,7 @@ class WebSocketService {
     clearHandlers() {
         this.messageHandlers = [];
         this.connectionHandlers = [];
+        this.readReceiptHandlers = [];
     }
 
     /**
@@ -58,6 +60,12 @@ class WebSocketService {
                 const notification = JSON.parse(message.body);
                 console.log('Received message:', notification);
                 this.notifyMessageHandlers(notification);
+            });
+
+            this.client.subscribe('/user/queue/read-receipts', (message) => {
+                const receipt = JSON.parse(message.body);
+                console.log('Received read receipt:', receipt);
+                this.notifyReadReceiptHandlers(receipt);
             });
 
             // Subscribe to error queue
@@ -137,6 +145,13 @@ class WebSocketService {
     }
 
     /**
+     * Register a handler for read receipts
+     */
+    onReadReceipt(handler) {
+        this.readReceiptHandlers.push(handler);
+    }
+
+    /**
      * Remove a message handler
      */
     removeMessageHandler(handler) {
@@ -179,6 +194,19 @@ class WebSocketService {
                 handler(connected);
             } catch (error) {
                 console.error('Error in connection handler:', error);
+            }
+        });
+    }
+
+    /**
+     * Notify all read receipt handlers
+     */
+    notifyReadReceiptHandlers(receipt) {
+        this.readReceiptHandlers.forEach((handler) => {
+            try {
+                handler(receipt);
+            } catch (error) {
+                console.error('Error in read receipt handler:', error);
             }
         });
     }

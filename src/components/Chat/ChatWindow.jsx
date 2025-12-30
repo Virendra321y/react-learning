@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaPaperPlane } from 'react-icons/fa';
+import { IoCheckmark, IoCheckmarkDone } from 'react-icons/io5';
 import useChatStore from '../../hooks/useChatStore';
+import { useAuth } from '../../hooks/useAuth';
 
 /**
  * ChatWindow Component
  * Displays active conversation with messages and input
  */
 const ChatWindow = () => {
+    const { user: currentUser } = useAuth();
     const {
         activeConversation,
         messages,
@@ -21,7 +24,7 @@ const ChatWindow = () => {
     const [sending, setSending] = useState(false);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
-    const currentUserId = JSON.parse(localStorage.getItem('user'))?.id;
+    const currentUserId = currentUser?.id;
 
     useEffect(() => {
         if (activeConversation?.id) {
@@ -119,7 +122,7 @@ const ChatWindow = () => {
                     </div>
                 ) : (
                     conversationMessages.map((msg, index) => {
-                        const isSender = msg.senderId === currentUserId;
+                        const isSender = Number(msg.senderId) === Number(currentUserId);
                         return (
                             <motion.div
                                 key={msg.id || index}
@@ -128,21 +131,30 @@ const ChatWindow = () => {
                                 className={`flex ${isSender ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
-                                    className={`max-w-[70%] rounded-2xl px-4 py-2 ${isSender
-                                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-                                        : 'bg-white text-gray-800 border border-gray-200'
+                                    className={`max-w-[75%] rounded-2xl px-4 py-2 shadow-sm relative group transition-all duration-200 ${isSender
+                                        ? 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-tr-none'
+                                        : 'bg-slate-100 text-slate-800 border border-slate-200 rounded-tl-none'
                                         }`}
                                 >
-                                    <p className="text-sm break-words">{msg.content}</p>
-                                    <p
-                                        className={`text-xs mt-1 ${isSender ? 'text-blue-100' : 'text-gray-400'
-                                            }`}
-                                    >
-                                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
-                                    </p>
+                                    <p className="text-sm leading-relaxed break-words">{msg.content}</p>
+                                    <div className={`flex items-center gap-1.5 mt-1 justify-end ${isSender ? 'text-indigo-100' : 'text-slate-400'}`}>
+                                        <span className="text-[10px] font-medium opacity-80 uppercase">
+                                            {new Date(msg.timestamp).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true
+                                            })}
+                                        </span>
+                                        {isSender && (
+                                            <div className="flex items-center">
+                                                {msg.readStatus ? (
+                                                    <IoCheckmarkDone className="text-blue-400 text-base" />
+                                                ) : (
+                                                    <IoCheckmark className="text-slate-300 text-base" />
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </motion.div>
                         );
