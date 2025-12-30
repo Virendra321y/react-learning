@@ -45,7 +45,7 @@ const Navbar = () => {
     const navLinks = [
         { name: 'Home', path: '/' },
         { name: 'Posts', path: '/posts' },
-        { name: 'Categories', path: '/categories' },
+        { name: 'Find People', path: '/users' },
     ];
 
     const getInitials = (firstName, lastName) => {

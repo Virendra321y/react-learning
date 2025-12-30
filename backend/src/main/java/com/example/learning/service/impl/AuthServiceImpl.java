@@ -6,6 +6,7 @@ import com.example.learning.dto.response.AuthResponse;
 import com.example.learning.dto.response.TokenResponse;
 import com.example.learning.dto.response.UserResponse;
 import com.example.learning.entity.User;
+import com.example.learning.entity.UserRole;
 import com.example.learning.exception.DuplicateEmailException;
 import com.example.learning.exception.InvalidTokenException;
 import com.example.learning.exception.UnauthorizedException;
@@ -52,8 +53,17 @@ public class AuthServiceImpl implements AuthService {
                 .role("USER")
                 .build();
 
+        // Create UserRole entity
+        UserRole userRole = UserRole.builder()
+                .user(user)
+                .role("USER")
+                .build();
+
+        // Add role to user's roles set
+        user.getRoles().add(userRole);
+
         User savedUser = userRepository.save(user);
-        
+
         String token = jwtProvider.generateToken(savedUser.getEmail());
         String refreshToken = jwtProvider.generateRefreshToken(savedUser.getEmail());
 

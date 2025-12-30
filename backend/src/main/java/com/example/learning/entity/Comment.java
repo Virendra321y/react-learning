@@ -22,11 +22,13 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id", nullable = false)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User author;
 
     @Column(name = "created_at", nullable = false, updatable = false)

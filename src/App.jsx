@@ -8,6 +8,8 @@ import Posts from './pages/Posts';
 import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
 import PostDetailPage from './pages/PostDetailPage';
+import UserSearch from './pages/UserSearch';
+import UserProfile from './pages/UserProfile';
 import { useAuth } from './hooks/useAuth';
 import AppLayout from './components/Common/AppLayout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
@@ -47,6 +49,16 @@ function App() {
         <Route path="/posts/:id/edit" element={
           <ProtectedRoute>
             <AppLayout><EditPost /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/users" element={
+          <ProtectedRoute>
+            <AppLayout><UserSearch /></AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/users/:id" element={
+          <ProtectedRoute>
+            <AppLayout><UserProfile /></AppLayout>
           </ProtectedRoute>
         } />
         <Route path="/login" element={

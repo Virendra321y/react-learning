@@ -53,8 +53,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<PostResponse> getAllPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findAllPublished(pageable);
+    public PageResponse<PostResponse> getAllPosts(Pageable pageable, Long currentUserId) {
+        Page<Post> posts = postRepository.findFeedPosts(currentUserId, pageable);
         return mapToPageResponse(posts);
     }
 
@@ -104,9 +104,32 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<PostResponse> getPostsByUser(Long userId, Pageable pageable) {
-        userRepository.findByIdActive(userId)
+    public PageResponse<PostResponse> getPostsByUser(Long userId, Long currentUserId, Pageable pageable) {
+        User targetUser = userRepository.findByIdActive(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        // Strict Privacy: Only allow viewing posts if:
+        // 1. Viewing own posts
+        // 2. Both users follow each other (Mutual Follow)
+        if (!userId.equals(currentUserId)) {
+            // Use repository query instead of lazy-loaded collections
+            boolean areMutualFollowers = userRepository.areMutualFollowers(currentUserId, userId);
+
+            if (!areMutualFollowers) {
+                // Return empty page instead of throwing exception for better UX
+                // Frontend will handle this gracefully
+                log.info("User {} attempted to view posts of user {} without mutual follow", currentUserId, userId);
+                return PageResponse.<PostResponse>builder()
+                        .content(java.util.Collections.emptyList())
+                        .page(0)
+                        .size(pageable.getPageSize())
+                        .totalElements(0L)
+                        .totalPages(0)
+                        .hasNext(false)
+                        .hasPrevious(false)
+                        .build();
+            }
+        }
 
         Page<Post> posts = postRepository.findByAuthorId(userId, pageable);
         return mapToPageResponse(posts);
@@ -114,14 +137,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<PostResponse> searchPosts(String query, Pageable pageable) {
-        Page<Post> posts = postRepository.searchPosts(query, pageable);
+    public PageResponse<PostResponse> searchPosts(String query, Pageable pageable, Long currentUserId) {
+        Page<Post> posts = postRepository.searchPosts(query, currentUserId, pageable);
         return mapToPageResponse(posts);
     }
 
     private PostResponse mapToPostResponse(Post post) {
         Integer commentCount = commentRepository.countByPostId(post.getId());
-        
+
         UserResponse authorResponse = UserResponse.builder()
                 .id(post.getAuthor().getId())
                 .username(post.getAuthor().getUsername())

@@ -57,15 +57,29 @@ public class User {
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Post> posts = new HashSet<>();
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Comment> comments = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<UserRole> roles = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(name = "user_follows", joinColumns = @JoinColumn(name = "follower_id"), inverseJoinColumns = @JoinColumn(name = "following_id"))
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> following = new HashSet<>();
+
+    @ManyToMany(mappedBy = "following")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<User> followers = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

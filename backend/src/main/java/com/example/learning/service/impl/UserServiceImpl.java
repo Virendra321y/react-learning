@@ -95,9 +95,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<UserResponse> searchUsers(String query, Pageable pageable) {
+    public PageResponse<UserResponse> searchUsers(String query, Pageable pageable, Long currentUserId) {
         Page<User> users = userRepository.searchUsers(query, pageable);
-        return mapToPageResponse(users);
+        return mapToPageResponse(users, currentUserId);
     }
 
     @Override
@@ -105,7 +105,9 @@ public class UserServiceImpl implements UserService {
     public UserResponse getCurrentUser(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-        return mapToUserResponse(user);
+        // For current user, isFollowing is null or false (you don't follow yourself
+        // usually)
+        return mapToUserResponse(user, null);
     }
 
     @Override
@@ -131,13 +133,138 @@ public class UserServiceImpl implements UserService {
                 .totalPosts(totalPosts != null ? totalPosts : 0)
                 .totalComments(totalComments != null ? totalComments : 0)
                 .totalLikes(0)
+                .followersCount(user.getFollowers().size())
+                .followingCount(user.getFollowing().size())
                 .accountAge(accountAge.intValue())
                 .lastLoginAt(LocalDateTime.now().toString())
                 .accountStatus(user.getStatus().toString())
                 .build();
     }
 
+    @Override
+    public void followUser(Long followerId, Long followingId) {
+        if (followerId.equals(followingId)) {
+            throw new IllegalArgumentException("Users cannot follow themselves");
+        }
+
+        User follower = userRepository.findByIdActive(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", followerId));
+        User following = userRepository.findByIdActive(followingId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", followingId));
+
+        follower.getFollowing().add(following);
+        userRepository.save(follower);
+        log.info("User {} started following user {}", followerId, followingId);
+    }
+
+    @Override
+    public void unfollowUser(Long followerId, Long followingId) {
+        User follower = userRepository.findByIdActive(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", followerId));
+        User following = userRepository.findByIdActive(followingId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", followingId));
+
+        follower.getFollowing().remove(following);
+        userRepository.save(follower);
+        log.info("User {} unfollowed user {}", followerId, followingId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getFollowers(Long userId, Pageable pageable, Long currentUserId) {
+        User user = userRepository.findByIdActive(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), user.getFollowers().size());
+
+        java.util.List<User> content = user.getFollowers().stream().toList();
+        if (start > content.size()) {
+            return PageResponse.<UserResponse>builder()
+                    .content(java.util.Collections.emptyList()).page(pageable.getPageNumber())
+                    .size(pageable.getPageSize())
+                    .totalElements(content.size())
+                    .totalPages((int) Math.ceil((double) content.size() / pageable.getPageSize()))
+                    .hasNext(false).hasPrevious(pageable.getPageNumber() > 0).build();
+        }
+
+        java.util.List<User> pagedList = content.subList(start, end);
+
+        return PageResponse.<UserResponse>builder()
+                .content(pagedList.stream().map(u -> mapToUserResponse(u, currentUserId)).toList())
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements(content.size())
+                .totalPages((int) Math.ceil((double) content.size() / pageable.getPageSize()))
+                .hasNext(end < content.size())
+                .hasPrevious(pageable.getPageNumber() > 0)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getFollowing(Long userId, Pageable pageable, Long currentUserId) {
+        User user = userRepository.findByIdActive(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), user.getFollowing().size());
+
+        java.util.List<User> content = user.getFollowing().stream().toList();
+
+        if (start > content.size()) {
+            return PageResponse.<UserResponse>builder()
+                    .content(java.util.Collections.emptyList()).page(pageable.getPageNumber())
+                    .size(pageable.getPageSize())
+                    .totalElements(content.size())
+                    .totalPages((int) Math.ceil((double) content.size() / pageable.getPageSize()))
+                    .hasNext(false).hasPrevious(pageable.getPageNumber() > 0).build();
+        }
+
+        java.util.List<User> pagedList = content.subList(start, end);
+
+        return PageResponse.<UserResponse>builder()
+                .content(pagedList.stream().map(u -> mapToUserResponse(u, currentUserId)).toList())
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements(content.size())
+                .totalPages((int) Math.ceil((double) content.size() / pageable.getPageSize()))
+                .hasNext(end < content.size())
+                .hasPrevious(pageable.getPageNumber() > 0)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isFollowing(Long followerId, Long followingId) {
+        User follower = userRepository.findByIdActive(followerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", followerId));
+        return follower.getFollowing().stream().anyMatch(u -> u.getId().equals(followingId));
+    }
+
     private UserResponse mapToUserResponse(User user) {
+        return mapToUserResponse(user, null);
+    }
+
+    private UserResponse mapToUserResponse(User user, Long currentUserId) {
+        boolean isFollowing = false;
+        if (currentUserId != null) {
+            // Check if user (the target) is followed by currentUserId
+            // i.e. Does currentUser follow user?
+            // Expensive check if we don't optimize, but with lazy loading via JPA standard
+            // + ID check it's okay for now.
+            // Better: currentUser.getFollowing().contains(user).
+            // But we don't have currentUser object here easily without fetching it.
+            // OR we check user.getFollowers().contains(currentUser).
+            // Let's use the helper method isFollowing(currentUserId, user.getId())
+            // But that fetches follower again.
+            // Optimized: We fetch currentUser ONCE in the controller/service method and
+            // pass Set<Long> followingIds?
+            // For now, let's just do the check user.getFollowers().stream().anyMatch(...)
+            // This is N+1 but on a small scale. Safe for "Startup" phase.
+            isFollowing = user.getFollowers().stream().anyMatch(f -> f.getId().equals(currentUserId));
+        }
+
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -150,13 +277,18 @@ public class UserServiceImpl implements UserService {
                 .status(user.getStatus().toString())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .isFollowing(isFollowing) // Set the field
                 .build();
     }
 
     private PageResponse<UserResponse> mapToPageResponse(Page<User> page) {
+        return mapToPageResponse(page, null);
+    }
+
+    private PageResponse<UserResponse> mapToPageResponse(Page<User> page, Long currentUserId) {
         return PageResponse.<UserResponse>builder()
                 .content(page.getContent().stream()
-                        .map(this::mapToUserResponse)
+                        .map(u -> mapToUserResponse(u, currentUserId))
                         .toList())
                 .page(page.getNumber())
                 .size(page.getSize())

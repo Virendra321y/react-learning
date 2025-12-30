@@ -8,10 +8,16 @@ import org.springframework.data.domain.Pageable;
 
 public interface PostService {
     PostResponse createPost(Long userId, CreatePostRequest request);
-    PageResponse<PostResponse> getAllPosts(Pageable pageable);
+
+    PageResponse<PostResponse> getAllPosts(Pageable pageable, Long currentUserId);
+
     PostResponse getPostById(Long postId);
+
     PostResponse updatePost(Long postId, Long userId, UpdatePostRequest request);
+
     void deletePost(Long postId, Long userId);
-    PageResponse<PostResponse> getPostsByUser(Long userId, Pageable pageable);
-    PageResponse<PostResponse> searchPosts(String query, Pageable pageable);
+
+    PageResponse<PostResponse> getPostsByUser(Long userId, Long currentUserId, Pageable pageable);
+
+    PageResponse<PostResponse> searchPosts(String query, Pageable pageable, Long currentUserId);
 }
