@@ -72,14 +72,42 @@ public class PostController {
         }
 
         @GetMapping("/{postId}")
-        public ResponseEntity<ApiResponse<PostResponse>> getPostById(@PathVariable Long postId) {
+        public ResponseEntity<ApiResponse<PostResponse>> getPostById(
+                        @PathVariable Long postId,
+                        Authentication authentication) {
                 log.info("Fetching post: {}", postId);
-                PostResponse data = postService.getPostById(postId);
+                Long currentUserId = null;
+                if (authentication != null && authentication.isAuthenticated()) {
+                        try {
+                                currentUserId = extractUserIdFromAuthentication(authentication);
+                        } catch (Exception e) {
+                                // Ignore if not authenticated or error extracting user
+                        }
+                }
+
+                PostResponse data = postService.getPostById(postId, currentUserId);
 
                 ApiResponse<PostResponse> response = ApiResponse.<PostResponse>builder()
                                 .success(true)
                                 .message("Post retrieved successfully")
                                 .data(data)
+                                .timestamp(LocalDateTime.now())
+                                .build();
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        @PostMapping("/{postId}/like")
+        public ResponseEntity<ApiResponse<Void>> toggleLike(
+                        @PathVariable Long postId,
+                        Authentication authentication) {
+
+                Long userId = extractUserIdFromAuthentication(authentication);
+                postService.toggleLike(postId, userId);
+
+                ApiResponse<Void> response = ApiResponse.<Void>builder()
+                                .success(true)
+                                .message("Post like toggled successfully")
                                 .timestamp(LocalDateTime.now())
                                 .build();
 
