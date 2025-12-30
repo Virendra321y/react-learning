@@ -28,16 +28,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                         "(LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
                         "LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
                         "(p.author.id = :userId OR (" +
-                        "    :userId IN (SELECT f.id FROM p.author.followers f) " +
-                        "    AND :userId IN (SELECT f.id FROM p.author.following f) " +
+                        "    EXISTS (SELECT 1 FROM p.author.followers f WHERE f.id = :userId) " +
+                        "    AND EXISTS (SELECT 1 FROM p.author.following f WHERE f.id = :userId) " +
                         "))")
         Page<Post> searchPosts(@Param("query") String query, @Param("userId") Long userId, Pageable pageable);
 
         @Query("SELECT p FROM Post p " +
                         "WHERE p.deletedAt IS NULL AND p.status = 'PUBLISHED' " +
                         "AND (p.author.id = :userId OR (" +
-                        "    :userId IN (SELECT f.id FROM p.author.followers f) " +
-                        "    AND :userId IN (SELECT f.id FROM p.author.following f) " +
+                        "    EXISTS (SELECT 1 FROM p.author.followers f WHERE f.id = :userId) " +
+                        "    AND EXISTS (SELECT 1 FROM p.author.following f WHERE f.id = :userId) " +
                         "))")
         Page<Post> findFeedPosts(@Param("userId") Long userId, Pageable pageable);
 }

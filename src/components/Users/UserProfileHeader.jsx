@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FiMapPin, FiLink, FiCalendar, FiUserPlus, FiUserCheck } from 'react-icons/fi';
+import { FiMapPin, FiMessageSquare, FiCalendar, FiUserPlus, FiUserCheck, FiX } from 'react-icons/fi';
 
-const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) => {
+const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile, canChat, onMessageClick, isChatVisible }) => {
     const [loading, setLoading] = React.useState(false);
 
     const handleFollowClick = async () => {
@@ -13,7 +13,7 @@ const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) 
 
     return (
         <div className="relative mb-8">
-            {/* Cover Image Placeholder - could be dynamic later */}
+            {/* Cover Image Placeholder */}
             <div className="h-48 md:h-64 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 w-full object-cover shadow-sm">
                 <div className="w-full h-full bg-black/10 rounded-xl backdrop-blur-[2px]"></div>
             </div>
@@ -49,7 +49,6 @@ const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) 
                         <p className="text-lg text-slate-500 font-medium truncate">@{user.username}</p>
 
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-sm text-slate-500">
-                            {/* Placeholders for bio info */}
                             <span className="flex items-center gap-1">
                                 <FiMapPin /> Planet Earth
                             </span>
@@ -61,6 +60,20 @@ const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) 
 
                     {/* Actions */}
                     <div className="pb-4 flex gap-3">
+                        {!isOwnProfile && canChat && (
+                            <button
+                                onClick={onMessageClick}
+                                className={`px-6 py-2.5 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2
+                                    ${isChatVisible
+                                        ? 'bg-slate-800 text-white hover:bg-slate-900'
+                                        : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                                    }`}
+                            >
+                                {isChatVisible ? <FiX size={20} /> : <FiMessageSquare size={20} />}
+                                {isChatVisible ? 'Close Chat' : 'Message'}
+                            </button>
+                        )}
+
                         {!isOwnProfile && (
                             <button
                                 onClick={handleFollowClick}
@@ -74,13 +87,9 @@ const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) 
                                 {loading ? (
                                     <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                 ) : isFollowing ? (
-                                    <>
-                                        <FiUserCheck size={20} /> Following
-                                    </>
+                                    <><FiUserCheck size={20} /> Following</>
                                 ) : (
-                                    <>
-                                        <FiUserPlus size={20} /> Follow
-                                    </>
+                                    <><FiUserPlus size={20} /> Follow</>
                                 )}
                             </button>
                         )}
@@ -91,7 +100,6 @@ const UserProfileHeader = ({ user, isFollowing, onFollowToggle, isOwnProfile }) 
                             </button>
                         )}
                     </div>
-
                 </div>
             </div>
         </div>

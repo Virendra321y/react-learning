@@ -6,18 +6,30 @@ import { userAPI } from '../services/userAPI';
 import UserProfileHeader from '../components/Users/UserProfileHeader';
 import UserStatsCard from '../components/Users/UserStatsCard';
 import UserPostList from '../components/Users/UserPostList';
+import { canChatWith } from '../services/chatApi';
+import useChatStore from '../hooks/useChatStore';
 
 const UserProfile = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user: currentUser } = useAuth();
+    const { openChatWithUser, closeChat, isChatOpen, activeConversation } = useChatStore();
 
     // State
     const [profileUser, setProfileUser] = useState(null);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isFollowing, setIsFollowing] = useState(false);
+    const [canChat, setCanChat] = useState(false);
     const [error, setError] = useState(null);
+
+    const handleMessageToggle = () => {
+        if (isChatOpen && activeConversation?.otherUserId === profileUser?.id) {
+            closeChat();
+        } else {
+            openChatWithUser(profileUser.id, profileUser.username, profileUser.avatar);
+        }
+    };
 
     // Fetch Profile Data
     useEffect(() => {
@@ -39,6 +51,14 @@ const UserProfile = () => {
                 if (currentUser && currentUser.id !== parseInt(id)) {
                     const followRes = await userAPI.checkFollowStatus(id);
                     setIsFollowing(followRes.data.data);
+
+                    // Also check if we can chat (mutual follow)
+                    try {
+                        const chatRes = await canChatWith(id);
+                        setCanChat(chatRes.data);
+                    } catch (e) {
+                        setCanChat(false);
+                    }
                 }
 
             } catch (err) {
@@ -101,9 +121,13 @@ const UserProfile = () => {
                 isFollowing={isFollowing}
                 onFollowToggle={handleFollowToggle}
                 isOwnProfile={isOwnProfile}
+                canChat={canChat}
+                onMessageClick={handleMessageToggle}
+                isChatVisible={isChatOpen && activeConversation?.otherUserId === profileUser.id}
             />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
                 {/* Stats */}
                 <UserStatsCard stats={stats} />
 

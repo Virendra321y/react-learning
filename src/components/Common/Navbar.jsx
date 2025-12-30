@@ -6,6 +6,7 @@ import { IoMdRocket } from 'react-icons/io'; // Rocket icon
 import clsx from 'clsx';
 import { useAuth } from '../../hooks/useAuth';
 
+
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -153,6 +154,7 @@ const Navbar = () => {
                     {/* Right Side Wrapper: Auth/Profile Only */}
                     <div className="hidden md:flex items-center ml-auto">
                         <div className="flex items-center">
+
                             {user ? (
                                 <div className="relative" ref={profileRef}>
                                     <button

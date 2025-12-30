@@ -14,14 +14,34 @@ import { useAuth } from './hooks/useAuth';
 import AppLayout from './components/Common/AppLayout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import PublicRoute from './components/Auth/PublicRoute';
+import useChatStore from './hooks/useChatStore';
+import ChatSidebar from './components/Chat/ChatSidebar';
 
 function App() {
-  const { checkAuth } = useAuth();
+  const { checkAuth, user, isAuthenticated } = useAuth();
+  const { connect, disconnect } = useChatStore();
 
   // Check authentication status on app load
   React.useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Connect to WebSocket when authenticated
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      const token = localStorage.getItem('token');
+      if (token) {
+        connect(token);
+      }
+    } else {
+      disconnect();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      disconnect();
+    };
+  }, [isAuthenticated, user, connect, disconnect]);
 
   return (
     <Router>
@@ -73,6 +93,7 @@ function App() {
         } />
         <Route path="*" element={<AppLayout><NotFound /></AppLayout>} />
       </Routes>
+      <ChatSidebar />
     </Router>
   );
 }
