@@ -11,7 +11,7 @@ public interface PostService {
 
     PageResponse<PostResponse> getAllPosts(Pageable pageable, Long currentUserId);
 
-    PostResponse getPostById(Long postId);
+    PostResponse getPostById(Long postId, Long currentUserId);
 
     PostResponse updatePost(Long postId, Long userId, UpdatePostRequest request);
 
@@ -20,4 +20,6 @@ public interface PostService {
     PageResponse<PostResponse> getPostsByUser(Long userId, Long currentUserId, Pageable pageable);
 
     PageResponse<PostResponse> searchPosts(String query, Pageable pageable, Long currentUserId);
+
+    void toggleLike(Long postId, Long userId);
 }

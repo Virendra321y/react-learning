@@ -13,7 +13,7 @@ import apiClient from './api';
 export const getPostComments = async (postId) => {
     try {
         const response = await apiClient.get(`/posts/${postId}/comments`);
-        return response.data.data;
+        return response.data.data.content;
     } catch (error) {
         console.error(`Error fetching comments for post ${postId}:`, error);
         throw error;

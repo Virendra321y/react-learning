@@ -2,9 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import { FiUser, FiCalendar, FiEdit, FiTrash2, FiEye, FiMessageSquare, FiBookmark } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiEdit, FiTrash2, FiEye, FiMessageSquare, FiBookmark, FiHeart } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import { bookmarkAPI } from '../../services/api';
+import { postAPI } from '../../services/postAPI';
 import { toast } from 'react-hot-toast';
 
 /**
@@ -16,13 +17,20 @@ const PostCard = ({ post, onDelete, customAction }) => {
     const [isBookmarked, setIsBookmarked] = React.useState(false);
     const [loadingBookmark, setLoadingBookmark] = React.useState(false);
 
+    // Like state
+    const [isLiked, setIsLiked] = React.useState(post.isLiked || false);
+    const [likeCountState, setLikeCountState] = React.useState(post.likeCount || 0);
+
     const isAuthor = user?.id === post?.author?.id;
 
     React.useEffect(() => {
         if (isAuthenticated && post?.id) {
             checkBookmarkStatus();
         }
-    }, [isAuthenticated, post?.id]);
+        // Update local state if prop changes (e.g. after refresh)
+        setIsLiked(post.isLiked || false);
+        setLikeCountState(post.likeCount || 0);
+    }, [isAuthenticated, post?.id, post.isLiked, post.likeCount]);
 
     const checkBookmarkStatus = async () => {
         try {
@@ -30,6 +38,27 @@ const PostCard = ({ post, onDelete, customAction }) => {
             setIsBookmarked(response.data.data);
         } catch (error) {
             console.error('Error checking bookmark status:', error);
+        }
+    };
+
+    const handleLike = async (e) => {
+        e.preventDefault();
+        if (!isAuthenticated) return;
+
+        // Optimistic update
+        const previousLiked = isLiked;
+        const previousCount = likeCountState;
+
+        setIsLiked(!previousLiked);
+        setLikeCountState(prev => previousLiked ? prev - 1 : prev + 1);
+
+        try {
+            await postAPI.toggleLike(post.id);
+        } catch (error) {
+            // Revert on error
+            setIsLiked(previousLiked);
+            setLikeCountState(previousCount);
+            toast.error('Failed to update like');
         }
     };
 
@@ -131,18 +160,33 @@ const PostCard = ({ post, onDelete, customAction }) => {
                     </Link>
 
                     {isAuthenticated && (
-                        <button
-                            onClick={toggleBookmark}
-                            disabled={loadingBookmark}
-                            className={clsx(
-                                "p-2 rounded-lg transition-all",
-                                isBookmarked
-                                    ? "bg-purple-100 text-purple-600"
-                                    : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                            )}
-                        >
-                            <FiBookmark fill={isBookmarked ? "currentColor" : "none"} size={18} />
-                        </button>
+                        <>
+                            <button
+                                onClick={handleLike}
+                                className={clsx(
+                                    "p-2 rounded-lg transition-all flex items-center gap-1",
+                                    isLiked
+                                        ? "bg-red-100 text-red-600"
+                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                )}
+                            >
+                                <FiHeart fill={isLiked ? "currentColor" : "none"} size={18} />
+                                <span className="text-sm font-medium">{likeCountState}</span>
+                            </button>
+
+                            <button
+                                onClick={toggleBookmark}
+                                disabled={loadingBookmark}
+                                className={clsx(
+                                    "p-2 rounded-lg transition-all",
+                                    isBookmarked
+                                        ? "bg-purple-100 text-purple-600"
+                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                )}
+                            >
+                                <FiBookmark fill={isBookmarked ? "currentColor" : "none"} size={18} />
+                            </button>
+                        </>
                     )}
 
                     {customAction}

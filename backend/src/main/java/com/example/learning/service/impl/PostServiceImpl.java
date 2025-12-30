@@ -12,6 +12,9 @@ import com.example.learning.exception.UnauthorizedException;
 import com.example.learning.repository.CommentRepository;
 import com.example.learning.repository.PostRepository;
 import com.example.learning.repository.UserRepository;
+import com.example.learning.repository.LikeRepository;
+import com.example.learning.entity.Like;
+
 import com.example.learning.service.PostService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,9 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
     @Override
     public PostResponse createPost(Long userId, CreatePostRequest request) {
         User author = userRepository.findByIdActive(userId)
@@ -48,22 +54,22 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         Post savedPost = postRepository.save(post);
-        return mapToPostResponse(savedPost);
+        return mapToPostResponse(savedPost, userId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<PostResponse> getAllPosts(Pageable pageable, Long currentUserId) {
         Page<Post> posts = postRepository.findFeedPosts(currentUserId, pageable);
-        return mapToPageResponse(posts);
+        return mapToPageResponse(posts, currentUserId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PostResponse getPostById(Long postId) {
+    public PostResponse getPostById(Long postId, Long currentUserId) {
         Post post = postRepository.findByIdActive(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        return mapToPostResponse(post);
+        return mapToPostResponse(post, currentUserId);
     }
 
     @Override
@@ -86,7 +92,7 @@ public class PostServiceImpl implements PostService {
         }
 
         Post updatedPost = postRepository.save(post);
-        return mapToPostResponse(updatedPost);
+        return mapToPostResponse(updatedPost, userId);
     }
 
     @Override
@@ -132,18 +138,43 @@ public class PostServiceImpl implements PostService {
         }
 
         Page<Post> posts = postRepository.findByAuthorId(userId, pageable);
-        return mapToPageResponse(posts);
+        return mapToPageResponse(posts, currentUserId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PageResponse<PostResponse> searchPosts(String query, Pageable pageable, Long currentUserId) {
         Page<Post> posts = postRepository.searchPosts(query, currentUserId, pageable);
-        return mapToPageResponse(posts);
+        return mapToPageResponse(posts, currentUserId);
     }
 
-    private PostResponse mapToPostResponse(Post post) {
+    @Override
+    public void toggleLike(Long postId, Long userId) {
+        Post post = postRepository.findByIdActive(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
+
+        User user = userRepository.findByIdActive(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        if (likeRepository.existsByPostIdAndUserId(postId, userId)) {
+            likeRepository.deleteByPostIdAndUserId(postId, userId);
+        } else {
+            Like like = Like.builder()
+                    .post(post)
+                    .user(user)
+                    .build();
+            likeRepository.save(like);
+        }
+    }
+
+    private PostResponse mapToPostResponse(Post post, Long currentUserId) {
         Integer commentCount = commentRepository.countByPostId(post.getId());
+        long likeCount = likeRepository.countByPostId(post.getId());
+        boolean isLiked = false;
+
+        if (currentUserId != null) {
+            isLiked = likeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+        }
 
         UserResponse authorResponse = UserResponse.builder()
                 .id(post.getAuthor().getId())
@@ -159,15 +190,17 @@ public class PostServiceImpl implements PostService {
                 .status(post.getStatus().toString())
                 .author(authorResponse)
                 .commentCount(commentCount != null ? commentCount : 0)
+                .likeCount(likeCount)
+                .isLiked(isLiked)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
     }
 
-    private PageResponse<PostResponse> mapToPageResponse(Page<Post> page) {
+    private PageResponse<PostResponse> mapToPageResponse(Page<Post> page, Long currentUserId) {
         return PageResponse.<PostResponse>builder()
                 .content(page.getContent().stream()
-                        .map(this::mapToPostResponse)
+                        .map(post -> mapToPostResponse(post, currentUserId))
                         .toList())
                 .page(page.getNumber())
                 .size(page.getSize())
@@ -177,4 +210,5 @@ public class PostServiceImpl implements PostService {
                 .hasPrevious(page.hasPrevious())
                 .build();
     }
+
 }

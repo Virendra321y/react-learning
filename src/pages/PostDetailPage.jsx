@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock, FiMessageSquare, FiHeart } from 'react-icons/fi';
 import { usePost, useDeletePost } from '../hooks/usePosts';
 import { useAuth } from '../hooks/useAuth';
 import { useState } from 'react';
@@ -20,6 +20,8 @@ const PostDetailPage = () => {
     const { post, loading, error } = usePost(id);
     const { deletePost, loading: deleting } = useDeletePost();
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [showComments, setShowComments] = useState(false);
+
 
     const isAuthor = user?.id === post?.author?.id;
 
@@ -133,6 +135,18 @@ const PostDetailPage = () => {
                                     <span>Updated: {formatDate(post.updatedAt)}</span>
                                 </div>
                             )}
+
+                            {/* Like & Comment Counts */}
+                            <div className="flex items-center gap-4 ml-auto">
+                                <div className="flex items-center gap-1 text-pink-600 font-medium">
+                                    <FiHeart size={20} fill={post.isLiked ? "currentColor" : "none"} />
+                                    <span>{post.likeCount || 0}</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-blue-600 font-medium cursor-pointer" onClick={() => setShowComments(!showComments)}>
+                                    <FiMessageSquare size={20} />
+                                    <span>{post.commentCount || 0}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -166,18 +180,31 @@ const PostDetailPage = () => {
                     )}
                 </motion.article>
 
-                {/* Comments Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="mt-8 bg-white rounded-xl shadow-lg p-8"
-                >
-                    <h2 className="text-2xl font-bold text-slate-800 mb-6">Add a Comment</h2>
-                    <CommentForm postId={parseInt(id)} onSuccess={() => { }} />
+                {/* Comments Section Toggle */}
+                <div className="mt-8 flex justify-center">
+                    <button
+                        onClick={() => setShowComments(!showComments)}
+                        className="flex items-center gap-2 px-6 py-3 bg-white text-slate-700 rounded-full shadow-md hover:shadow-lg hover:bg-slate-50 transition-all font-medium border border-slate-200"
+                    >
+                        <FiMessageSquare size={20} />
+                        <span>{showComments ? 'Hide Comments' : `Show Comments (${post.commentCount || 0})`}</span>
+                    </button>
+                </div>
 
-                    <CommentList postId={parseInt(id)} />
-                </motion.div>
+                {/* Comments Section */}
+                {showComments && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="mt-6 bg-white rounded-xl shadow-lg p-8"
+                    >
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6">Comments</h2>
+                        <CommentForm postId={parseInt(id)} onSuccess={() => { }} />
+
+                        <CommentList postId={parseInt(id)} />
+                    </motion.div>
+                )}
 
                 {/* Delete Confirmation Modal */}
                 <DeleteConfirmModal
