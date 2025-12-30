@@ -22,6 +22,12 @@ public class Traffic {
     @Column(name = "endpoint")
     private String endpoint;
 
+    @Column(name = "user_agent")
+    private String userAgent;
+
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "timestamp", nullable = false)
     private LocalDateTime timestamp;
 

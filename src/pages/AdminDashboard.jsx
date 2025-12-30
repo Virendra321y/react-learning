@@ -4,6 +4,9 @@ import {
     FiUsers, FiFileText, FiMessageSquare, FiTrendingUp, FiCheckCircle,
     FiXCircle, FiSlash, FiShield, FiCalendar, FiActivity
 } from 'react-icons/fi';
+import {
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
+} from 'recharts';
 import { adminAPI } from '../services/api';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -11,6 +14,7 @@ import clsx from 'clsx';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
+    const [trafficData, setTrafficData] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('stats');
@@ -20,7 +24,17 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchStats();
         fetchUsers();
+        fetchTrafficData();
     }, []);
+
+    const fetchTrafficData = async () => {
+        try {
+            const response = await adminAPI.getTrafficChartData();
+            setTrafficData(response.data.data);
+        } catch (error) {
+            console.error('Error fetching traffic data:', error);
+        }
+    };
 
     const fetchStats = async () => {
         try {
@@ -167,8 +181,34 @@ const AdminDashboard = () => {
                                 <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                                     <FiActivity className="text-indigo-500" /> System Activity
                                 </h2>
-                                <div className="h-64 flex items-center justify-center border-2 border-dashed border-slate-100 rounded-2xl">
-                                    <p className="text-slate-400 italic">Traffic Chart Visualization placeholder</p>
+                                <div className="h-64 w-full pr-4">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={trafficData}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                                dy={10}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                            />
+                                            <Tooltip
+                                                cursor={{ fill: '#f1f5f9', radius: 4 }}
+                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                            />
+                                            <Bar
+                                                dataKey="traffic"
+                                                fill="#6366f1"
+                                                radius={[4, 4, 0, 0]}
+                                                barSize={20}
+                                            />
+                                        </BarChart>
+                                    </ResponsiveContainer>
                                 </div>
                             </div>
                             <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">

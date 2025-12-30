@@ -137,6 +137,7 @@ export const adminAPI = {
     getAllUsers: (page = 0, size = 10) => apiClient.get('/admin/users', { params: { page, size } }),
     updateUserStatus: (userId, status) => apiClient.put(`/admin/users/${userId}/status`, null, { params: { status } }),
     updateUserRole: (userId, role) => apiClient.put(`/admin/users/${userId}/role`, null, { params: { role } }),
+    getTrafficChartData: () => apiClient.get('/admin/traffic-chart'),
 };
 
 export default apiClient;

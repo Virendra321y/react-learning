@@ -89,12 +89,30 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void recordTraffic(String ipAddress, String endpoint) {
+    public void recordTraffic(String ipAddress, String endpoint, String userAgent, Long userId) {
         Traffic traffic = Traffic.builder()
                 .ipAddress(ipAddress)
                 .endpoint(endpoint)
+                .userAgent(userAgent)
+                .userId(userId)
                 .build();
         trafficRepository.save(traffic);
+    }
+
+    @Override
+    public List<Map<String, Object>> getTrafficChartData() {
+        LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+        List<Object[]> rawData = trafficRepository.findTrafficCountsByHourAfter(yesterday);
+
+        return rawData.stream().map(row -> {
+            Map<String, Object> point = new HashMap<>();
+            // row[0] is Date, row[1] is Hour (Integer), row[2] is Count (Long)
+            // We want to format it nicely, e.g., "10:00"
+            int hour = ((Number) row[1]).intValue();
+            point.put("name", String.format("%02d:00", hour));
+            point.put("traffic", row[2]);
+            return point;
+        }).collect(Collectors.toList());
     }
 
     private UserResponse mapToUserResponse(User user) {

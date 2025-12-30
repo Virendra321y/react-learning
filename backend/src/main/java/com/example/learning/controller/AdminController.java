@@ -12,6 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -71,6 +74,21 @@ public class AdminController {
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .success(true)
                 .message("User status updated")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/traffic-chart")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getTrafficChartData() {
+        log.info("Fetching traffic chart data");
+        List<Map<String, Object>> data = adminService.getTrafficChartData();
+
+        ApiResponse<List<Map<String, Object>>> response = ApiResponse.<List<Map<String, Object>>>builder()
+                .success(true)
+                .message("Traffic chart data retrieved")
+                .data(data)
                 .timestamp(LocalDateTime.now())
                 .build();
 
