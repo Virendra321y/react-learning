@@ -180,6 +180,8 @@ public class PostServiceImpl implements PostService {
                 .id(post.getAuthor().getId())
                 .username(post.getAuthor().getUsername())
                 .email(post.getAuthor().getEmail())
+                .firstName(post.getAuthor().getFirstName())
+                .lastName(post.getAuthor().getLastName())
                 .avatar(post.getAuthor().getAvatar())
                 .build();
 
