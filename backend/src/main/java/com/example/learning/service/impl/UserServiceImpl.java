@@ -42,6 +42,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private com.example.learning.service.NotificationService notificationService;
 
+    @Autowired
+    private com.example.learning.service.FileStorageService fileStorageService;
+
     @Override
     @Transactional(readOnly = true)
     public PageResponse<UserResponse> getAllUsers(Pageable pageable) {
@@ -74,6 +77,27 @@ public class UserServiceImpl implements UserService {
         if (request.getAvatar() != null) {
             user.setAvatar(request.getAvatar());
         }
+
+        User updatedUser = userRepository.save(user);
+        return mapToUserResponse(updatedUser);
+    }
+
+    @Override
+    public UserResponse updateAvatar(Long userId, org.springframework.web.multipart.MultipartFile file) {
+        User user = userRepository.findByIdActive(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        String fileName = fileStorageService.storeFile(file);
+
+        // Construct the full URL for the avatar
+        // For local development, it will be something like
+        // http://localhost:8080/uploads/fileName
+        // In a real app, this should be a full URL to the cloud storage or a relative
+        // path handled by frontend
+        // Let's store the relative path "/uploads/" + fileName
+
+        String fileUrl = "http://localhost:8080/uploads/" + fileName;
+        user.setAvatar(fileUrl);
 
         User updatedUser = userRepository.save(user);
         return mapToUserResponse(updatedUser);

@@ -14,6 +14,8 @@ public interface UserService {
 
     UserResponse updateUser(Long userId, UpdateUserRequest request);
 
+    UserResponse updateAvatar(Long userId, org.springframework.web.multipart.MultipartFile file);
+
     void changePassword(Long userId, ChangePasswordRequest request);
 
     PageResponse<UserResponse> searchUsers(String query, Pageable pageable, Long currentUserId);

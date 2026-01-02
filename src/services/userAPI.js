@@ -20,6 +20,17 @@ export const userAPI = {
     // Change password
     changePassword: (id, data) => apiClient.put(`/users/${id}/password`, data),
 
+    // Upload avatar
+    uploadAvatar: (id, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return apiClient.post(`/users/${id}/avatar`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+    },
+
     // Follow a user
     follow: (userId) => apiClient.post(`/users/${userId}/follow`),
 

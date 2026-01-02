@@ -4,10 +4,12 @@ import { motion } from 'framer-motion';
 import { FiArrowLeft, FiEdit, FiTrash2, FiUser, FiCalendar, FiClock, FiMessageSquare, FiHeart } from 'react-icons/fi';
 import { usePost, useDeletePost } from '../hooks/usePosts';
 import { useAuth } from '../hooks/useAuth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DeleteConfirmModal from '../components/Posts/DeleteConfirmModal';
 import CommentForm from '../components/Comments/CommentForm';
 import CommentList from '../components/Comments/CommentList';
+import { postAPI } from '../services/postAPI';
+import { toast } from 'react-hot-toast';
 
 /**
  * PostDetailPage
@@ -21,6 +23,41 @@ const PostDetailPage = () => {
     const { deletePost, loading: deleting } = useDeletePost();
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [showComments, setShowComments] = useState(false);
+
+    // Initial state for likes
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+
+    // Update local state when post data loads
+    useEffect(() => {
+        if (post) {
+            setIsLiked(post.isLiked || false);
+            setLikeCount(post.likeCount || 0);
+        }
+    }, [post]);
+
+    const handleLike = async () => {
+        if (!user) {
+            toast.error('Please login to like posts');
+            return;
+        }
+
+        // Optimistic update
+        const previousLiked = isLiked;
+        const previousCount = likeCount;
+
+        setIsLiked(!previousLiked);
+        setLikeCount(prev => previousLiked ? prev - 1 : prev + 1);
+
+        try {
+            await postAPI.toggleLike(id);
+        } catch (error) {
+            // Revert on error
+            setIsLiked(previousLiked);
+            setLikeCount(previousCount);
+            toast.error('Failed to update like');
+        }
+    };
 
 
     const isAuthor = user?.id === post?.author?.id;
@@ -120,10 +157,18 @@ const PostDetailPage = () => {
                         {/* Meta Information */}
                         <div className="flex flex-wrap items-center gap-6 text-slate-600">
                             <div className="flex items-center gap-2">
-                                <FiUser size={18} />
-                                <span className="font-medium">
-                                    {post.author?.firstName} {post.author?.lastName}
-                                </span>
+                                <Link to={`/users/${post.author?.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+                                        {post.author?.avatar ? (
+                                            <img src={post.author.avatar} alt={post.author.username} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <FiUser size={16} className="text-slate-400" />
+                                        )}
+                                    </div>
+                                    <span className="font-medium text-slate-800 hover:text-indigo-600 transition-colors">
+                                        {post.author?.firstName} {post.author?.lastName}
+                                    </span>
+                                </Link>
                             </div>
                             <div className="flex items-center gap-2">
                                 <FiCalendar size={18} />
@@ -138,11 +183,14 @@ const PostDetailPage = () => {
 
                             {/* Like & Comment Counts */}
                             <div className="flex items-center gap-4 ml-auto">
-                                <div className="flex items-center gap-1 text-pink-600 font-medium">
-                                    <FiHeart size={20} fill={post.isLiked ? "currentColor" : "none"} />
-                                    <span>{post.likeCount || 0}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-blue-600 font-medium cursor-pointer" onClick={() => setShowComments(!showComments)}>
+                                <button
+                                    onClick={handleLike}
+                                    className={`flex items-center gap-1 font-medium transition-colors ${isLiked ? 'text-pink-600' : 'text-slate-400 hover:text-pink-600'}`}
+                                >
+                                    <FiHeart size={20} fill={isLiked ? "currentColor" : "none"} />
+                                    <span>{likeCount}</span>
+                                </button>
+                                <div className="flex items-center gap-1 text-blue-600 font-medium cursor-pointer hover:text-blue-700 transition-colors" onClick={() => setShowComments(!showComments)}>
                                     <FiMessageSquare size={20} />
                                     <span>{post.commentCount || 0}</span>
                                 </div>

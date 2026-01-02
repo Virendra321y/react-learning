@@ -124,6 +124,7 @@ const UserProfile = () => {
                 canChat={canChat}
                 onMessageClick={handleMessageToggle}
                 isChatVisible={isChatOpen && activeConversation?.otherUserId === profileUser.id}
+                onAvatarUpdate={(newAvatarUrl) => setProfileUser(prev => ({ ...prev, avatar: newAvatarUrl }))}
             />
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">

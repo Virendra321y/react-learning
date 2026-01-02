@@ -135,9 +135,19 @@ const PostCard = ({ post, onDelete, customAction }) => {
 
                 {/* Author and date */}
                 <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
-                    <div className="flex items-center gap-1">
-                        <FiUser size={14} />
-                        <span>{post.author?.firstName} {post.author?.lastName}</span>
+                    <div className="flex items-center gap-2">
+                        <Link to={`/users/${post.author?.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                            <div className="w-6 h-6 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+                                {post.author?.avatar ? (
+                                    <img src={post.author.avatar} alt={post.author.username} className="w-full h-full object-cover" />
+                                ) : (
+                                    <FiUser size={14} className="text-slate-400" />
+                                )}
+                            </div>
+                            <span className="font-medium text-slate-700 hover:text-indigo-600 transition-colors">
+                                {post.author?.firstName} {post.author?.lastName}
+                            </span>
+                        </Link>
                     </div>
                     <div className="flex items-center gap-1">
                         <FiCalendar size={14} />

@@ -84,6 +84,24 @@ public class UserController {
                 return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
+        @PostMapping(value = "/{userId}/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<ApiResponse<UserResponse>> updateAvatar(
+                        @PathVariable Long userId,
+                        @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+
+                log.info("Updating avatar for user: {}", userId);
+                UserResponse data = userService.updateAvatar(userId, file);
+
+                ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                                .success(true)
+                                .message("Avatar updated successfully")
+                                .data(data)
+                                .timestamp(LocalDateTime.now())
+                                .build();
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
         @PutMapping("/{userId}/password")
         public ResponseEntity<ApiResponse<Void>> changePassword(
                         @PathVariable Long userId,
