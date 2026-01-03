@@ -6,7 +6,7 @@ import useChatStore from '../hooks/useChatStore';
 const ChatPage = () => {
     const [searchParams] = useSearchParams();
     const conversationId = searchParams.get('conversationId');
-    const { conversations, selectConversation, fetchConversations, loading } = useChatStore();
+    const { conversations, setActiveConversation, openChat, fetchConversations, loading } = useChatStore();
 
     useEffect(() => {
         fetchConversations();
@@ -15,7 +15,10 @@ const ChatPage = () => {
     useEffect(() => {
         if (conversationId && conversations.length > 0) {
             const conv = conversations.find(c => c.id === parseInt(conversationId));
-            if (conv) selectConversation(conv);
+            if (conv) {
+                setActiveConversation(conv);
+                openChat();
+            }
         }
     }, [conversationId, conversations]);
 

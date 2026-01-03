@@ -19,6 +19,7 @@ const NotificationsDropdown = () => {
         setLoading(true);
         try {
             const response = await notificationAPI.getNotifications(0, 5);
+            console.log('Fetched notifications:', response.data.data.content);
             setNotifications(response.data.data.content);
         } catch (error) {
             console.error('Error fetching notifications:', error);
@@ -41,6 +42,7 @@ const NotificationsDropdown = () => {
         fetchNotifications();
 
         const handleNewNotification = (notification) => {
+            console.log('New notification received:', notification);
             setNotifications(prev => [notification, ...prev].slice(0, 10));
             setUnreadCount(prev => prev + 1);
         };
@@ -157,11 +159,24 @@ const NotificationsDropdown = () => {
                                         )}
                                     >
                                         <div className="flex-shrink-0 mt-1">
-                                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                                                {getIcon(notification.type)}
-                                            </div>
+                                            {(notification.senderAvatar || notification.userAvatar) ? (
+                                                <img
+                                                    src={notification.senderAvatar || notification.userAvatar}
+                                                    alt="User"
+                                                    className="w-8 h-8 rounded-full object-cover border border-slate-100 shadow-sm"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
+                                                    {getIcon(notification.type)}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex-grow min-w-0">
+                                            {(notification.senderName || notification.userName) && (
+                                                <p className="text-sm font-bold text-slate-800 mb-0.5">
+                                                    {notification.senderName || notification.userName}
+                                                </p>
+                                            )}
                                             <p className={clsx(
                                                 "text-xs leading-relaxed",
                                                 !notification.isRead ? "text-slate-900 font-semibold" : "text-slate-600"
