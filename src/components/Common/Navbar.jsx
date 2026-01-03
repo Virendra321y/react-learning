@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../services/api';
 import NotificationsDropdown from './NotificationsDropdown';
+import MessagesDropdown from './MessagesDropdown';
 import { toast } from 'react-hot-toast';
 
 
@@ -158,7 +159,12 @@ const Navbar = () => {
 
                     {/* Right Side Wrapper: Auth/Profile Only */}
                     <div className="hidden md:flex items-center ml-auto gap-4">
-                        {user && <NotificationsDropdown />}
+                        {user && (
+                            <>
+                                <MessagesDropdown />
+                                <NotificationsDropdown />
+                            </>
+                        )}
                         <div className="flex items-center">
 
                             {user ? (
