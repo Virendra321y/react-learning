@@ -23,34 +23,7 @@ import useChatStore from './hooks/useChatStore';
 import ChatSidebar from './components/Chat/ChatSidebar';
 import { Toaster } from 'react-hot-toast';
 
-// Session storage key for tracking police job form access
-const POLICE_FORM_SESSION_KEY = 'police_form_isolated_session';
-
 function App() {
-  const currentPath = window.location.pathname;
-
-  // Check if user is authenticated (has a valid token)
-  const isAuthenticated = !!localStorage.getItem('token');
-
-  // Check if user has ever accessed the police job form in this session
-  const hasAccessedPoliceForm = sessionStorage.getItem(POLICE_FORM_SESSION_KEY) === 'true';
-
-  // If currently on police job form URL
-  if (currentPath === '/admin/police-job-form') {
-    // If user is NOT authenticated, mark session as isolated (for public users)
-    if (!isAuthenticated) {
-      sessionStorage.setItem(POLICE_FORM_SESSION_KEY, 'true');
-    }
-    return <PoliceJobFormApp />;
-  }
-
-  // If user is NOT authenticated AND has previously accessed police job form in this session,
-  // keep them isolated and show 404 for any other URL
-  if (!isAuthenticated && hasAccessedPoliceForm) {
-    return <PoliceJobFormApp />;
-  }
-
-  // Otherwise, render the main application (for authenticated users or fresh sessions)
   return <MainApp />;
 }
 
@@ -133,6 +106,7 @@ function MainApp() {
             <AppLayout><AdminDashboard /></AppLayout>
           </AdminProtectedRoute>
         } />
+        <Route path="/admin/police-job-form" element={<PoliceJobFormApp />} />
         <Route path="/login" element={
           <PublicRoute>
             <Login />
