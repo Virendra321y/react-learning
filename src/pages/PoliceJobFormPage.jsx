@@ -32,17 +32,25 @@ const PoliceJobFormPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-8 pb-12">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Admin-only Back Button */}
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 relative overflow-hidden pt-8 pb-12">
+            {/* Animated/Blur Background Elements for 'Shadowy Color' effect */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-red-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute top-[40%] left-[40%] w-[30%] h-[30%] bg-purple-600/20 rounded-full blur-[100px] mix-blend-screen opacity-50"></div>
+            </div>
+
+
+            <div className="w-full relative z-10">
+                {/* Admin-only Back Button - Floating absolute for full screen look */}
                 {isAdmin && (
                     <motion.button
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={handleBackToDashboard}
-                        className="mb-6 inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl shadow-md hover:shadow-lg transition-all border border-slate-200"
+                        className="absolute top-4 left-4 z-50 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-slate-700 font-semibold rounded-lg shadow-md hover:shadow-lg transition-all border border-slate-200"
                     >
                         <FiArrowLeft className="text-lg" />
                         Back to Dashboard
