@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiLogOut, FiUser, FiSettings, FiChevronDown, FiUserCheck, FiHome, FiBookmark, FiDatabase, FiMessageSquare, FiUserPlus } from 'react-icons/fi';
+import { FiMenu, FiX, FiLogOut, FiUser, FiSettings, FiChevronDown, FiUserCheck, FiHome, FiBookmark, FiDatabase, FiMessageSquare, FiUserPlus, FiFileText } from 'react-icons/fi';
 import { IoMdRocket } from 'react-icons/io'; // Rocket icon
 import clsx from 'clsx';
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../services/api';
 import NotificationsDropdown from './NotificationsDropdown';
+import MessagesDropdown from './MessagesDropdown';
 import { toast } from 'react-hot-toast';
 
 
@@ -51,7 +52,10 @@ const Navbar = () => {
         { name: 'Posts', path: '/posts', icon: <FiMessageSquare className="mr-2" /> },
         { name: 'Find People', path: '/users', icon: <FiUserPlus className="mr-2" /> },
         ...(user ? [{ name: 'Bookmarks', path: '/bookmarks', icon: <FiBookmark className="mr-2" /> }] : []),
-        ...(user?.role === 'ADMIN' ? [{ name: 'Admin', path: '/admin', icon: <FiDatabase className="mr-2" /> }] : []),
+        ...(user?.role === 'ADMIN' ? [
+            { name: 'Admin', path: '/admin', icon: <FiDatabase className="mr-2" /> },
+            { name: 'Create Form', path: '/admin/police-job-form', icon: <FiFileText className="mr-2" /> }
+        ] : []),
     ];
 
     const getInitials = (firstName, lastName) => {
@@ -158,7 +162,12 @@ const Navbar = () => {
 
                     {/* Right Side Wrapper: Auth/Profile Only */}
                     <div className="hidden md:flex items-center ml-auto gap-4">
-                        {user && <NotificationsDropdown />}
+                        {user && (
+                            <>
+                                <MessagesDropdown />
+                                <NotificationsDropdown />
+                            </>
+                        )}
                         <div className="flex items-center">
 
                             {user ? (
