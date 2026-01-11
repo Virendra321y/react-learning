@@ -19,16 +19,44 @@ const schema = z.object({
     qualification: z.string().min(1, 'Qualification is required'),
     height: z.string().min(1, 'Height is required'),
     weight: z.string().min(1, 'Weight is required'),
+    photoUrl: z.string().optional(),
+    signatureUrl: z.string().optional(),
 });
 
-const JobFormDetailsStep = ({ onBack }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        resolver: zodResolver(schema)
+const JobFormDetailsStep = ({ onBack, onNext, initialData }) => {
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: initialData || {}
     });
 
+    const handleFileUpload = async (event, fieldName) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            toast.loading('Uploading...', { id: 'upload' });
+            const response = await fetch('http://localhost:8080/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+            const data = await response.json();
+
+            setValue(fieldName, data.url); // Set the URL in the form
+            toast.success('Uploaded!', { id: 'upload' });
+        } catch (error) {
+            console.error(error);
+            toast.error('Upload failed', { id: 'upload' });
+        }
+    };
+
     const onSubmit = (data) => {
-        console.log('Form Data:', data);
-        toast.success('Form Submitted Successfully! (Simulation)');
+        console.log('Form Details Next:', data);
+        onNext(data);
     };
 
     const SectionTitle = ({ icon, title }) => (
@@ -118,21 +146,33 @@ const JobFormDetailsStep = ({ onBack }) => {
                     <SectionTitle icon={<FiBriefcase />} title="IV. Background & Documents" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-4">
-                            <label className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors">
+                            <label className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors relative">
                                 <FiUpload className="text-indigo-600" size={24} />
                                 <div>
                                     <p className="font-bold text-slate-800">Upload Photo</p>
                                     <p className="text-xs text-slate-400">Passport size (max 2MB)</p>
                                 </div>
-                                <input type="file" className="hidden" />
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    onChange={(e) => handleFileUpload(e, 'photoUrl')}
+                                />
+                                {/* Hidden input to register with hook form */}
+                                <input type="hidden" {...register('photoUrl')} />
                             </label>
-                            <label className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors">
+
+                            <label className="flex items-center gap-4 p-4 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors relative">
                                 <FiUpload className="text-indigo-600" size={24} />
                                 <div>
                                     <p className="font-bold text-slate-800">Upload Signature</p>
                                     <p className="text-xs text-slate-400">Clear scan (max 1MB)</p>
                                 </div>
-                                <input type="file" className="hidden" />
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    onChange={(e) => handleFileUpload(e, 'signatureUrl')}
+                                />
+                                <input type="hidden" {...register('signatureUrl')} />
                             </label>
                         </div>
                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -155,7 +195,7 @@ const JobFormDetailsStep = ({ onBack }) => {
                         className="w-full py-4 bg-indigo-600 text-white font-bold rounded-2xl shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-3"
                     >
                         <FiSave size={20} />
-                        Save & Publish Recruitment Post
+                        Review Application
                     </motion.button>
                 </div>
             </form>
