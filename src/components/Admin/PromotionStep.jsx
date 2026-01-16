@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiShield, FiStar, FiCheckCircle, FiCalendar, FiClock } from 'react-icons/fi';
-import policeBanner from '../../assets/up_police_background_collage.png';
+import policeBanner from '../../assets/up_police_inclusive_background.png';
 import upPoliceLogo from '../../assets/up_police_logo_emblem.png';
 
 const PromotionStep = ({ onNext }) => {
