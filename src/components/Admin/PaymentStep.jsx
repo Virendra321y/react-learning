@@ -46,7 +46,7 @@ const PaymentStep = ({ amount = 1, onSuccess, onFailed }) => {
                 key: backendKeyId, // Dynamic key from backend
                 amount: orderJson.amount,
                 currency: "INR",
-                name: "UP Police Recruitment",
+                name: "Application Fee",
                 description: "Application Fee Payment",
                 image: "/src/assets/up_police_logo_emblem.png",
                 order_id: orderJson.id,
@@ -147,7 +147,7 @@ const PaymentStep = ({ amount = 1, onSuccess, onFailed }) => {
                     <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></span>
                 ) : (
                     <>
-                        <FiCreditCard /> Pay Now (Google Pay / UPI / Card)
+                        <FiCreditCard /> Pay Now (Google Pay/ Phone Pay/ UPI/ Card )
                     </>
                 )}
             </motion.button>

@@ -66,7 +66,7 @@ const VerificationStep = ({ formData, onEdit, onNext }) => {
                         onClick={onNext}
                         className="flex-[2] py-4 bg-gradient-to-r from-green-600 to-green-700 text-white font-bold rounded-xl shadow-lg hover:shadow-green-500/30 transition-all flex items-center justify-center gap-2"
                     >
-                        Proceed to Payment (₹50) <FiCheckCircle />
+                        Proceed to Payment (₹1) <FiCheckCircle />
                     </motion.button>
                 </div>
             </div>
