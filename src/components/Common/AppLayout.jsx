@@ -5,7 +5,7 @@ import Layout from './Layout';
 // Layout wrapper to conditionally show/hide Layout based on route
 const AppLayout = ({ children }) => {
     const location = useLocation();
-    const hideLayoutRoutes = ['/login', '/register'];
+    const hideLayoutRoutes = ['/login', '/register', '/admin/police-job-form'];
     const shouldHideLayout = hideLayoutRoutes.includes(location.pathname);
 
     if (shouldHideLayout) {

@@ -12,6 +12,7 @@ import UserSearch from './pages/UserSearch';
 import UserProfile from './pages/UserProfile';
 import Bookmarks from './pages/Bookmarks';
 import AdminDashboard from './pages/AdminDashboard';
+import PoliceJobFormApp from './PoliceJobFormApp';
 import ChatPage from './pages/ChatPage';
 import { useAuth } from './hooks/useAuth';
 import AppLayout from './components/Common/AppLayout';
@@ -23,6 +24,10 @@ import ChatSidebar from './components/Chat/ChatSidebar';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
+  return <MainApp />;
+}
+
+function MainApp() {
   const { checkAuth, user, isAuthenticated } = useAuth();
   const { connect, disconnect } = useChatStore();
 
@@ -101,6 +106,7 @@ function App() {
             <AppLayout><AdminDashboard /></AppLayout>
           </AdminProtectedRoute>
         } />
+        <Route path="/admin/police-job-form" element={<PoliceJobFormApp />} />
         <Route path="/login" element={
           <PublicRoute>
             <Login />
