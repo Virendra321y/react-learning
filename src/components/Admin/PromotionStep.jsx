@@ -135,15 +135,80 @@ const PromotionStep = ({ onNext }) => {
                         </motion.div>
                     </motion.div>
 
+
                     {/* Important Notice Card */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white border-l-4 border-red-600 shadow-md p-6 mb-8 rounded-r-lg"
+                        className="bg-white border-l-4 border-red-600 shadow-md p-6 mb-8 rounded-r-lg relative overflow-hidden"
                     >
+                        {/* Police Light Effect - Alternating Red/Green */}
+                        <div className="absolute top-4 right-4 flex items-center gap-3">
+                            <div className="flex gap-2">
+                                {/* Red Light */}
+                                <motion.div
+                                    animate={{
+                                        opacity: [1, 0.3, 1],
+                                        scale: [1, 1.2, 1]
+                                    }}
+                                    transition={{
+                                        duration: 1,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="relative"
+                                >
+                                    <span className="relative flex h-4 w-4">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-4 w-4 bg-red-600 shadow-lg shadow-red-500/50"></span>
+                                    </span>
+                                </motion.div>
+
+                                {/* Green Light */}
+                                <motion.div
+                                    animate={{
+                                        opacity: [0.3, 1, 0.3],
+                                        scale: [1, 1.2, 1]
+                                    }}
+                                    transition={{
+                                        duration: 1,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="relative"
+                                >
+                                    <span className="relative flex h-4 w-4">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-4 w-4 bg-green-600 shadow-lg shadow-green-500/50"></span>
+                                    </span>
+                                </motion.div>
+                            </div>
+                            <span className="text-xs font-bold text-red-600 uppercase tracking-wider animate-pulse">Live Now</span>
+                        </div>
+
                         <h4 className="text-xl md:text-2xl font-bold text-red-700 mb-4 flex flex-col md:flex-row md:items-center gap-2">
-                            <span className="flex items-center gap-2"><span className="animate-pulse">🔴</span> New Recruitment Details</span>
+                            <span className="flex items-center gap-2">
+                                {/* Police Light Emoji Effect */}
+                                <motion.span
+                                    animate={{
+                                        filter: [
+                                            "hue-rotate(0deg) brightness(1)",
+                                            "hue-rotate(120deg) brightness(1.3)",
+                                            "hue-rotate(0deg) brightness(1)"
+                                        ]
+                                    }}
+                                    transition={{
+                                        duration: 1.5,
+                                        repeat: Infinity,
+                                        ease: "linear"
+                                    }}
+                                    className="text-2xl"
+                                >
+                                    🚨
+                                </motion.span>
+                                New Recruitment Details
+                            </span>
                             <span className="text-sm md:text-lg font-medium text-slate-500 hidden md:inline">|</span>
                             <span className="text-lg md:text-xl text-red-600 font-hindi">नई भर्ती विवरण</span>
                         </h4>
