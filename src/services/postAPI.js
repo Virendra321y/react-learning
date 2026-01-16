@@ -44,6 +44,14 @@ export const postAPI = {
     delete: (id) => apiClient.delete(`/posts/${id}`),
 
     /**
+     * Toggle like on a post
+     * @param {number} id - Post ID
+     * @returns {Promise} API response
+     */
+    toggleLike: (id) => apiClient.post(`/posts/${id}/like`),
+
+
+    /**
      * Search posts by query
      * @param {string} query - Search query
      * @param {number} page - Page number (default: 0)

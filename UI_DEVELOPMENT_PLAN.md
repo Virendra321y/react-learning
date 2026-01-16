@@ -154,6 +154,39 @@
 - **Real-time updates**
 - **Admin dashboard**
 
+
+
+----------------------------Admin---------------
+
+Updating Admin Access Guide to be more explicit about the promotion step and providing troubleshooting tips.
+
+2
+Finalizing the Admin Access Guide and providing a targeted fix for the user's specific case.
+
+I understand the confusion! The reason your response still shows USER is that all new accounts are created as USER by default for security.
+
+To become an Admin and access the dashboard, you must perform one additional step to promote your account.
+
+Here is exactly what you need to do right now using the token you already have:
+
+1. Promote your account to Admin
+Run this command in your terminal (using the token from your previous response):
+
+curl -X POST http://localhost:8080/api/v1/auth/promote-me \
+     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ2aXJlbmRyYXlkdjAwMTJAZ21haWwuY29tIiwiaWF0IjoxNzY3MTAxNTAwLCJleHAiOjE3NjcxMDUxMDB9.E-VCJXYKYMcdG29VBWNsRIx5D8AoZMzTWKfTs6sU8TM" \
+     -H "Content-Type: application/json"
+     
+2. Log in again on the website
+Once you receive the "You are now an ADMIN" message from the command above:
+
+Go to your browser.
+Log out if you are already logged in.
+Log in again with your email and password.
+Your account will now have the ADMIN role, and you will be able to access the dashboard at http://localhost:5173/admin.
+I have updated the 
+ADMIN_ACCESS_GUIDE.md
+ with a troubleshooting section to clarify this process for future use.
+
 ---
 
 ## 🛠️ Technology Stack

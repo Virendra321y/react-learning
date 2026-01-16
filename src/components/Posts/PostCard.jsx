@@ -1,16 +1,92 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiCalendar, FiEdit, FiTrash2, FiEye, FiMessageSquare } from 'react-icons/fi';
+import clsx from 'clsx';
+import { FiUser, FiCalendar, FiEdit, FiTrash2, FiEye, FiMessageSquare, FiBookmark, FiHeart } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
+import { bookmarkAPI } from '../../services/api';
+import { postAPI } from '../../services/postAPI';
+import { toast } from 'react-hot-toast';
 
 /**
  * PostCard Component
  * Displays a single post in card format
  */
-const PostCard = ({ post, onDelete }) => {
-    const { user } = useAuth();
+const PostCard = ({ post, onDelete, customAction }) => {
+    const { user, isAuthenticated } = useAuth();
+    const [isBookmarked, setIsBookmarked] = React.useState(false);
+    const [loadingBookmark, setLoadingBookmark] = React.useState(false);
+
+    // Like state
+    const [isLiked, setIsLiked] = React.useState(post.isLiked || false);
+    const [likeCountState, setLikeCountState] = React.useState(post.likeCount || 0);
+
     const isAuthor = user?.id === post?.author?.id;
+
+    React.useEffect(() => {
+        if (isAuthenticated && post?.id) {
+            checkBookmarkStatus();
+        }
+        // Update local state if prop changes (e.g. after refresh)
+        setIsLiked(post.isLiked || false);
+        setLikeCountState(post.likeCount || 0);
+    }, [isAuthenticated, post?.id, post.isLiked, post.likeCount]);
+
+    const checkBookmarkStatus = async () => {
+        try {
+            const response = await bookmarkAPI.getStatus(post.id);
+            setIsBookmarked(response.data.data);
+        } catch (error) {
+            console.error('Error checking bookmark status:', error);
+        }
+    };
+
+    const handleLike = async (e) => {
+        e.preventDefault();
+        if (!isAuthenticated) return;
+
+        // Optimistic update
+        const previousLiked = isLiked;
+        const previousCount = likeCountState;
+
+        setIsLiked(!previousLiked);
+        setLikeCountState(prev => previousLiked ? prev - 1 : prev + 1);
+
+        try {
+            await postAPI.toggleLike(post.id);
+        } catch (error) {
+            // Revert on error
+            setIsLiked(previousLiked);
+            setLikeCountState(previousCount);
+            toast.error('Failed to update like');
+        }
+    };
+
+    const toggleBookmark = async (e) => {
+        e.preventDefault();
+        if (!isAuthenticated) {
+            toast.error('Please login to bookmark posts');
+            return;
+        }
+
+        setLoadingBookmark(true);
+        try {
+            if (isBookmarked) {
+                await bookmarkAPI.unbookmark(post.id);
+                setIsBookmarked(false);
+                toast.success('Removed from bookmarks');
+            } else {
+                await bookmarkAPI.bookmark(post.id);
+                setIsBookmarked(true);
+                toast.success('Added to bookmarks');
+            }
+        } catch (error) {
+            console.error('Error toggling bookmark:', error);
+            toast.error('Failed to update bookmark');
+        } finally {
+            setLoadingBookmark(false);
+        }
+    };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -59,9 +135,19 @@ const PostCard = ({ post, onDelete }) => {
 
                 {/* Author and date */}
                 <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
-                    <div className="flex items-center gap-1">
-                        <FiUser size={14} />
-                        <span>{post.author?.firstName} {post.author?.lastName}</span>
+                    <div className="flex items-center gap-2">
+                        <Link to={`/users/${post.author?.id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                            <div className="w-6 h-6 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200">
+                                {post.author?.avatar ? (
+                                    <img src={post.author.avatar} alt={post.author.username} className="w-full h-full object-cover" />
+                                ) : (
+                                    <FiUser size={14} className="text-slate-400" />
+                                )}
+                            </div>
+                            <span className="font-medium text-slate-700 hover:text-indigo-600 transition-colors">
+                                {post.author?.firstName} {post.author?.lastName}
+                            </span>
+                        </Link>
                     </div>
                     <div className="flex items-center gap-1">
                         <FiCalendar size={14} />
@@ -82,6 +168,38 @@ const PostCard = ({ post, onDelete }) => {
                         <FiEye size={16} />
                         View
                     </Link>
+
+                    {isAuthenticated && (
+                        <>
+                            <button
+                                onClick={handleLike}
+                                className={clsx(
+                                    "p-2 rounded-lg transition-all flex items-center gap-1",
+                                    isLiked
+                                        ? "bg-red-100 text-red-600"
+                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                )}
+                            >
+                                <FiHeart fill={isLiked ? "currentColor" : "none"} size={18} />
+                                <span className="text-sm font-medium">{likeCountState}</span>
+                            </button>
+
+                            <button
+                                onClick={toggleBookmark}
+                                disabled={loadingBookmark}
+                                className={clsx(
+                                    "p-2 rounded-lg transition-all",
+                                    isBookmarked
+                                        ? "bg-purple-100 text-purple-600"
+                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                )}
+                            >
+                                <FiBookmark fill={isBookmarked ? "currentColor" : "none"} size={18} />
+                            </button>
+                        </>
+                    )}
+
+                    {customAction}
 
                     {isAuthor && (
                         <>

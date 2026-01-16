@@ -12,20 +12,32 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.status = 'PUBLISHED'")
-    Page<Post> findAllPublished(Pageable pageable);
+        @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.status = 'PUBLISHED'")
+        Page<Post> findAllPublished(Pageable pageable);
 
-    @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.id = :id")
-    Optional<Post> findByIdActive(@Param("id") Long id);
+        @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.id = :id")
+        Optional<Post> findByIdActive(@Param("id") Long id);
 
-    @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.author.id = :userId")
-    Page<Post> findByAuthorId(@Param("userId") Long userId, Pageable pageable);
+        @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND p.author.id = :userId")
+        Page<Post> findByAuthorId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT COUNT(p) FROM Post p WHERE p.author.id = :userId AND p.deletedAt IS NULL")
-    Integer countByAuthorId(@Param("userId") Long userId);
+        @Query("SELECT COUNT(p) FROM Post p WHERE p.author.id = :userId AND p.deletedAt IS NULL")
+        Integer countByAuthorId(@Param("userId") Long userId);
 
-    @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND " +
-           "(LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%')))")
-    Page<Post> searchPosts(@Param("query") String query, Pageable pageable);
+        @Query("SELECT p FROM Post p WHERE p.deletedAt IS NULL AND " +
+                        "(LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+                        "LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) AND " +
+                        "(p.author.id = :userId OR (" +
+                        "    EXISTS (SELECT 1 FROM p.author.followers f WHERE f.id = :userId) " +
+                        "    AND EXISTS (SELECT 1 FROM p.author.following f WHERE f.id = :userId) " +
+                        "))")
+        Page<Post> searchPosts(@Param("query") String query, @Param("userId") Long userId, Pageable pageable);
+
+        @Query("SELECT p FROM Post p " +
+                        "WHERE p.deletedAt IS NULL AND p.status = 'PUBLISHED' " +
+                        "AND (p.author.id = :userId OR (" +
+                        "    EXISTS (SELECT 1 FROM p.author.followers f WHERE f.id = :userId) " +
+                        "    AND EXISTS (SELECT 1 FROM p.author.following f WHERE f.id = :userId) " +
+                        "))")
+        Page<Post> findFeedPosts(@Param("userId") Long userId, Pageable pageable);
 }

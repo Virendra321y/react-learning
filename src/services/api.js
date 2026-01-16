@@ -117,4 +117,27 @@ export const userAPI = {
     getCurrentUser: () => apiClient.get('/users/me'),
 };
 
+export const notificationAPI = {
+    getNotifications: (page = 0, size = 10) => apiClient.get('/notifications', { params: { page, size } }),
+    getUnreadCount: () => apiClient.get('/notifications/unread-count'),
+    markAsRead: (id) => apiClient.put(`/notifications/${id}/read`),
+    markAllAsRead: () => apiClient.put('/notifications/read-all'),
+    delete: (id) => apiClient.delete(`/notifications/${id}`),
+};
+
+export const bookmarkAPI = {
+    bookmark: (postId) => apiClient.post(`/bookmarks/post/${postId}`),
+    unbookmark: (postId) => apiClient.delete(`/bookmarks/post/${postId}`),
+    getBookmarkedPosts: (page = 0, size = 10) => apiClient.get('/bookmarks', { params: { page, size } }),
+    getStatus: (postId) => apiClient.get(`/bookmarks/post/${postId}/status`),
+};
+
+export const adminAPI = {
+    getStats: () => apiClient.get('/admin/stats'),
+    getAllUsers: (page = 0, size = 10) => apiClient.get('/admin/users', { params: { page, size } }),
+    updateUserStatus: (userId, status) => apiClient.put(`/admin/users/${userId}/status`, null, { params: { status } }),
+    updateUserRole: (userId, role) => apiClient.put(`/admin/users/${userId}/role`, null, { params: { role } }),
+    getTrafficChartData: () => apiClient.get('/admin/traffic-chart'),
+};
+
 export default apiClient;

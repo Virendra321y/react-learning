@@ -11,6 +11,8 @@ public class UserStatisticsResponse {
     private Integer totalPosts;
     private Integer totalComments;
     private Integer totalLikes;
+    private Integer followersCount;
+    private Integer followingCount;
     private Integer accountAge;
     private String lastLoginAt;
     private String accountStatus;
