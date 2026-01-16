@@ -42,6 +42,8 @@ public class ApplicationController {
             application.setChest((String) formData.get("chest"));
             application.setPhotoUrl((String) formData.get("photoUrl"));
             application.setSignatureUrl((String) formData.get("signatureUrl"));
+            application.setMarksheetUrl((String) formData.get("marksheetUrl"));
+            application.setCategoryCertUrl((String) formData.get("categoryCertUrl"));
 
             JobApplication savedApp = applicationService.submitApplication(application, paymentId);
 
