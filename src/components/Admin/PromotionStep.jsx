@@ -114,6 +114,25 @@ const PromotionStep = ({ onNext }) => {
                                 <p className="text-xl font-extrabold text-red-700">20 Jan 2026</p>
                             </div>
                         </motion.div>
+
+                        {/* Total Openings - Highlighted */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2, duration: 0.5 }}
+                            className="bg-gradient-to-br from-blue-600 to-indigo-700 px-8 py-4 rounded-xl shadow-2xl border-2 border-blue-300 flex items-center gap-4 relative overflow-hidden ring-4 ring-blue-200"
+                        >
+                            <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
+                            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white relative z-10">
+                                <FiStar className="text-2xl" />
+                            </div>
+                            <div className="relative z-10">
+                                <p className="text-xs text-blue-100 font-bold uppercase tracking-wider">Total Openings</p>
+                                <p className="text-xs text-blue-100 font-hindi">कुल रिक्तियां</p>
+                                <p className="text-3xl font-black text-white drop-shadow-lg">50,000</p>
+                            </div>
+                            <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-300/20 rounded-full blur-xl"></div>
+                        </motion.div>
                     </motion.div>
 
                     {/* Important Notice Card */}
