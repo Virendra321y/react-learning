@@ -41,6 +41,8 @@ public class JobApplication {
     // Documents
     private String photoUrl;
     private String signatureUrl;
+    private String marksheetUrl;
+    private String categoryCertUrl;
 
     // Status
     private String applicationStatus; // SUBMITTED, REVIEW, ACCEPTED, REJECTED
